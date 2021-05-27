@@ -3,11 +3,19 @@ package main
 import (
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 	"log"
 	"net/http"
 )
 
 func main() {
+	dsn := "localuser:localpass@tcp(127.0.0.1:3306)/localdb?charset=utf8mb4&parseTime=True&loc=Local"
+	_, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+		panic("failed to connect database")
+	}
+
 	e := echo.New()
 
 	e.Use(middleware.Logger())
@@ -15,7 +23,7 @@ func main() {
 
 	e.GET("/", welcome())
 
-	err := e.Start(":3000")
+	err = e.Start(":3000")
 	if err != nil {
 		log.Fatalln(err)
 	}
