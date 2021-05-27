@@ -4,7 +4,7 @@ CREATE TABLE books (
     book_id INTEGER AUTO_INCREMENT,
     owner_id INTEGER NOT NULL,
     isbn13 INTEGER NOT NULL,
-    title VARCHAR(255) NULL,
+    book_title VARCHAR(255) NULL,
     primary key (book_id)
 );
 
