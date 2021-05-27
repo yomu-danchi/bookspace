@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+
 	"github.com/yuonoda/bookspace/graph/generated"
 	"github.com/yuonoda/bookspace/graph/model"
 )
@@ -23,7 +24,17 @@ func (r *mutationResolver) CreateBook(ctx context.Context, input model.NewBook) 
 	return &book, nil
 }
 
+func (r *queryResolver) Books(ctx context.Context) ([]*model.Book, error) {
+	books := []*model.Book{}
+	r.DB.Find(&books)
+	return books, nil
+}
+
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 
+// Query returns generated.QueryResolver implementation.
+func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
+
 type mutationResolver struct{ *Resolver }
+type queryResolver struct{ *Resolver }

@@ -18,3 +18,7 @@ input NewBook {
 type Mutation{
   createBook(input: NewBook!): Book!
 }
+
+type Query {
+  books: [Book!]!
+}
