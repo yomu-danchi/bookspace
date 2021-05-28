@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 services:
   db:
@@ -6,7 +6,7 @@ services:
     image: mysql:5.7.24
     command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
     ports:
-    - "3306:3306"
+      - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: rootpass
       MYSQL_USER: localuser
@@ -14,3 +14,13 @@ services:
       MYSQL_DATABASE: localdb
     volumes:
       - ./persistence/init:/docker-entrypoint-initdb.d
+
+  web:
+    build:
+      context: .
+      dockerfile: ./docker/nginx/Dockerfile
+    ports:
+      - 3000:3000
+    command: "npm run dev"
+    volumes:
+      - ./frontend:/work/frontend
