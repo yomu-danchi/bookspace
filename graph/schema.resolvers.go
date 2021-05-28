@@ -19,7 +19,7 @@ func (r *mutationResolver) CreateBook(ctx context.Context, input model.NewBook) 
 		Isbn13:    input.Isbn13,
 		BookTitle: input.BookTitle,
 	}
-	r.DB.Create(&book)
+	r.DB.Select("OwnerID", "Isbn13", "BookTitle").Create(&book) // フィールドを指定しない方法ある？
 
 	return &book, nil
 }
