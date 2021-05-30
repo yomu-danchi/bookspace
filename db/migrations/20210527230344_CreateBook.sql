@@ -1,8 +1,8 @@
 -- +goose Up
 -- SQL in section 'Up' is executed when this migration is applied
-CREATE TABLE books (
+CREATE TABLE Books (
     book_id SERIAL,
-    owner_id INTEGER NOT NULL,
+    user_id BIGINT UNSIGNED NOT NULL,
     isbn13 INTEGER NOT NULL,
     book_title VARCHAR(255) NULL,
     primary key (book_id)
