@@ -12,7 +12,7 @@ services:
       MYSQL_USER: localuser
       MYSQL_PASSWORD: localpass
       MYSQL_DATABASE: localdb
-    volumes:
+    volumes: # @TODO gooseをやじめて、init.dに変える
       - ./persistence/init:/docker-entrypoint-initdb.d
   app:
     build:
@@ -20,8 +20,9 @@ services:
       dockerfile: ./docker/go/Dockerfile
     ports:
       - 8000:8000
+    command: "/app/server"
     depends_on:
-      - db
+      - "db"
   web:
     build:
       context: .

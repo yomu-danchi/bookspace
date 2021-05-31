@@ -15,10 +15,6 @@ RUN go mod download
 # Copy local code to the container image.
 COPY . ./
 
-# DBマイグレーション
-RUN go get -u github.com/pressly/goose/cmd/goose
-RUN goose up
-
 # Build the binary.
 RUN go build -v -o server
 
@@ -35,4 +31,4 @@ COPY --from=builder /app/server /app/server
 RUN chmod 777 -R /app && ls -la /app
 
 # Run the web service on container startup.
-CMD ["/app/server"]
+#CMD ["/app/server"]
