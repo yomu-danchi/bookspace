@@ -14,7 +14,14 @@ services:
       MYSQL_DATABASE: localdb
     volumes:
       - ./persistence/init:/docker-entrypoint-initdb.d
-
+  app:
+    build:
+      context: .
+      dockerfile: ./docker/go/Dockerfile
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
   web:
     build:
       context: .

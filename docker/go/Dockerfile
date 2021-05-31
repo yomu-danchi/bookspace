@@ -15,6 +15,10 @@ RUN go mod download
 # Copy local code to the container image.
 COPY . ./
 
+# DBマイグレーション
+RUN go get -u github.com/pressly/goose/cmd/goose
+RUN goose up
+
 # Build the binary.
 RUN go build -v -o server
 
