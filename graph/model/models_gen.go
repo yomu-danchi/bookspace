@@ -6,11 +6,22 @@ type Book struct {
 	BookID    string  `json:"book_id"`
 	BookTitle *string `json:"book_title"`
 	Isbn13    int     `json:"isbn13"`
-	OwnerID   int     `json:"owner_id"`
+	UserID    int     `json:"user_id"`
 }
 
 type NewBook struct {
 	BookTitle *string `json:"book_title"`
 	Isbn13    int     `json:"isbn13"`
-	OwnerID   int     `json:"owner_id"`
+	UserID    string  `json:"user_id"`
+}
+
+type NewUser struct {
+	UserName        string `json:"user_name"`
+	UserDisplayName string `json:"user_display_name"`
+}
+
+type User struct {
+	UserID          string `json:"user_id"`
+	UserName        string `json:"user_name"`
+	UserDisplayName string `json:"user_display_name"`
 }

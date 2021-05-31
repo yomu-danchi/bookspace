@@ -5,6 +5,8 @@ package graph
 
 import (
 	"context"
+	"log"
+	"strconv"
 
 	"github.com/yuonoda/bookspace/graph/generated"
 	"github.com/yuonoda/bookspace/graph/model"
@@ -14,20 +16,40 @@ func (r *mutationResolver) CreateBook(ctx context.Context, input model.NewBook) 
 	//timestamp := time.Now().Format("2006-01-02 15:04:05")
 
 	// TODO 作成日と更新日を追加
+	userId, err := strconv.Atoi(input.UserID)
+	if err != nil {
+		log.Fatal(err)
+	}
 	book := model.Book{
-		OwnerID:   input.OwnerID,
+		UserID:    userId,
 		Isbn13:    input.Isbn13,
 		BookTitle: input.BookTitle,
 	}
-	r.DB.Select("OwnerID", "Isbn13", "BookTitle").Create(&book) // フィールドを指定しない方法ある？
+	r.DB.Select("UserID", "Isbn13", "BookTitle").Create(&book) // フィールドを指定しない方法ある？
 
 	return &book, nil
 }
 
+func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (*model.User, error) {
+	user := model.User{
+		UserName:        input.UserName,
+		UserDisplayName: input.UserDisplayName,
+	}
+	r.DB.Select("UserName", "UserDisplayName").Create(&user)
+	return &user, nil
+}
+
 func (r *queryResolver) Books(ctx context.Context) ([]*model.Book, error) {
-	books := []*model.Book{}
+	var books []*model.Book
 	r.DB.Find(&books)
 	return books, nil
+}
+
+func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
+	var users []*model.User
+	r.DB.Find(&users)
+	log.Printf("users:%+v\n", users)
+	return users, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.
