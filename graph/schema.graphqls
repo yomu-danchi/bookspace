@@ -6,19 +6,33 @@ type Book {
   book_id: ID!
   book_title: String
   isbn13: Int!
-  owner_id: Int!
+  user_id: Int!
 }
 
 input NewBook {
   book_title: String
   isbn13: Int!
-  owner_id: Int!
+  user_id: String!
+}
+
+type User {
+  user_id: ID!
+  user_name: String!
+  user_display_name: String!
+}
+
+input NewUser {
+  user_name: String!
+  user_display_name: String!
 }
 
 type Mutation{
   createBook(input: NewBook!): Book!
+  createUser(input: NewUser!): User!
 }
+
 
 type Query {
   books: [Book!]!
+  users: [User!]!
 }
