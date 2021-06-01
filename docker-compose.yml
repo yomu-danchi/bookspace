@@ -13,8 +13,16 @@ services:
       MYSQL_PASSWORD: localpass
       MYSQL_DATABASE: localdb
     volumes:
-      - ./persistence/init:/docker-entrypoint-initdb.d
-
+      - ./db/init:/docker-entrypoint-initdb.d
+  app:
+    build:
+      context: .
+      dockerfile: ./docker/go/Dockerfile
+    ports:
+      - 8000:8000
+    command: "/app/server"
+    depends_on:
+      - "db"
   web:
     build:
       context: .

@@ -31,4 +31,4 @@ COPY --from=builder /app/server /app/server
 RUN chmod 777 -R /app && ls -la /app
 
 # Run the web service on container startup.
-CMD ["/app/server"]
+#CMD ["/app/server"]
