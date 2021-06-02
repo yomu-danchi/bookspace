@@ -14,6 +14,10 @@ services:
       MYSQL_DATABASE: localdb
     volumes:
       - ./db/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 20s
+      retries: 10
   app:
     build:
       context: .
@@ -22,7 +26,8 @@ services:
       - 8000:8000
     command: "/app/server"
     depends_on:
-      - "db"
+      db:
+        condition: service_healthy
   web:
     build:
       context: .
