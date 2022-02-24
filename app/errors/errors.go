@@ -20,6 +20,13 @@ func Invalid(err error) AppError {
 	}
 }
 
+func NotFound(err error) AppError {
+	return AppError{
+		error: err,
+		Code:  codes.NotFound,
+	}
+}
+
 func Code(err error) codes.Code {
 	if err == nil {
 		return codes.OK

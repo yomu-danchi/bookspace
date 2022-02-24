@@ -20,13 +20,13 @@ func (u *Usecase) CreateUser(dtoUser dto.User) (dto.User, error) {
 
 	newUserID, err := user.GenID()
 	if err != nil {
-		return dto.User{}, err
+		return dto.User{}, xerrors.Errorf(": %w", err)
 	}
 	newUserName := user.NewName(dtoUser.Name)
 	newUser := user.NewUser(newUserID, newUserName)
 
 	if err := u.repository.SaveUser(newUser); err != nil {
-		return dto.User{}, err
+		return dto.User{}, xerrors.Errorf(": %w", err)
 	}
 
 	createdUser := dto.User{
@@ -46,14 +46,14 @@ func (u *Usecase) RegisterBook(dtoBook dto.Book) (dto.Book, error) {
 
 	newBookID, err := book.GenID()
 	if err != nil {
-		return dto.Book{}, err
+		return dto.Book{}, xerrors.Errorf(": %w", err)
 	}
 	newBookTitle := book.NewTitle(dtoBook.Title)
-	newISBN13 := book.NewISBN13(dtoBook.ISBN13)
-	newBook := book.NewBook(newBookID, ownerID, newISBN13, newBookTitle)
+	newISBN13 := book.NewISBN13(dtoBook.ISBN13) // TODO ISBNの代わりに画像を登録させたい
+	newBook := book.NewBook(newBookID, ownerID, nil, newISBN13, newBookTitle)
 
-	if err := u.repository.RegisterBook(newBook); err != nil {
-		return dto.Book{}, err
+	if err := u.repository.SaveBook(newBook); err != nil {
+		return dto.Book{}, xerrors.Errorf(": %w", err)
 	}
 
 	registeredBook := dto.Book{
@@ -65,3 +65,29 @@ func (u *Usecase) RegisterBook(dtoBook dto.Book) (dto.Book, error) {
 
 	return registeredBook, nil
 }
+
+func (u *Usecase) BorrowBook(bookID string, borrowerID string) error {
+
+	book, err := u.repository.LoadBook(book.NewID(bookID))
+	if err != nil {
+		return xerrors.Errorf(": %w", err)
+	}
+	if book == nil {
+		return errors.NotFound(xerrors.Errorf("book not found"))
+	}
+
+	user, err := u.repository.LoadUser(user.NewID(borrowerID))
+	if err != nil {
+		return xerrors.Errorf(": %w", err)
+	}
+	if book == nil {
+		return errors.NotFound(xerrors.Errorf("user not found"))
+	}
+
+	// 複雑になったら貸し出しエンティティを設けてもいいかも
+	borrowedBook := book.UpdateBorrower(&user.ID)
+	u.repository.SaveBook(borrowedBook)
+	return nil
+}
+
+func (u *Usecase) ReturnBook() {}

@@ -96,7 +96,7 @@ func TestUsecase_RegisterBook(t *testing.T) {
 			fields: fields{
 				repositories: func(t *testing.T) repositories.Repository {
 					return &mock.RepositoryMock{
-						RegisterBookFunc: func(gotBook book.Book) error {
+						SaveBookFunc: func(gotBook book.Book) error {
 							wantBook := book.Book{
 								ID:      book.ID("V1StGXR8_Z5jdHi6B-myT"),
 								Title:   "book1",
@@ -140,6 +140,80 @@ func TestUsecase_RegisterBook(t *testing.T) {
 			}
 			if diff := cmp.Diff(got, tt.want, opts); diff != "" {
 				t.Error(diff)
+			}
+		})
+	}
+}
+func TestUsecase_BorrowBook(t *testing.T) {
+	userID1 := user.ID("V1StGXR8_Z5jdHi6B-myU")
+	bookID1 := book.ID("V1StGXR8_Z5jdHi6B-aaa")
+	userID2 := user.ID("V1StGXR8_Z5jdHi6B-myV")
+	type fields struct {
+		repositories func(t *testing.T) repositories.Repository
+	}
+	type args struct {
+		bookID     string
+		borrowerID string
+	}
+	tests := []struct {
+		name      string
+		args      args
+		fields    fields
+		wantError codes.Code
+		want      dto.Book
+	}{
+		{
+			name: "pass",
+			args: args{
+				bookID:     bookID1.String(),
+				borrowerID: userID2.String(),
+			},
+			fields: fields{
+				repositories: func(t *testing.T) repositories.Repository {
+					return &mock.RepositoryMock{
+						LoadBookFunc: func(bookID book.ID) (*book.Book, error) {
+							return &book.Book{
+								ID:      bookID1,
+								Title:   "book1",
+								ISBN13:  "978-1-56619-909-4",
+								OwnerID: userID1,
+							}, nil
+						},
+						LoadUserFunc: func(userID user.ID) (*user.User, error) {
+							return &user.User{
+								ID:   userID2,
+								Name: "Taro",
+							}, nil
+						},
+						SaveBookFunc: func(gotBook book.Book) error {
+							wantBook := book.Book{
+								ID:         bookID1,
+								Title:      "book1",
+								ISBN13:     book.ISBN13("978-1-56619-909-4"),
+								OwnerID:    userID1,
+								BorrowerID: &userID2,
+							}
+							if diff := cmp.Diff(gotBook, wantBook); diff != "" {
+								t.Fatal(diff)
+							}
+							return nil
+						},
+					}
+				},
+			},
+			wantError: codes.OK,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			u := Usecase{
+				repository: tt.fields.repositories(t),
+			}
+			err := u.BorrowBook(tt.args.bookID, tt.args.borrowerID)
+			if diff := cmp.Diff(errors.Code(err), tt.wantError); diff != "" {
+				t.Error(diff)
+				t.Log(err)
 			}
 		})
 	}

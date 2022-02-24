@@ -7,5 +7,7 @@ import (
 
 type Repository interface {
 	SaveUser(user user.User) error
-	RegisterBook(book book.Book) error
+	LoadUser(userID user.ID) (*user.User, error)
+	SaveBook(book book.Book) error
+	LoadBook(bookID book.ID) (*book.Book, error)
 }
