@@ -1,6 +1,6 @@
 package book
 
-import "github.com/yuonoda/bookspace/app/domain/user"
+import "github.com/yuonoda/bookspace/app/domain/models/user"
 
 type Book struct {
 	BookID  ID
