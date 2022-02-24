@@ -1,6 +1,13 @@
 package user
 
 type User struct {
-	UserID ID
-	Name   name
+	ID   ID
+	Name Name
+}
+
+func NewUser(ID ID, name Name) User {
+	return User{
+		ID:   ID,
+		Name: name,
+	}
 }

@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/yuonoda/bookspace/app/domain/models/user"
 	"github.com/yuonoda/bookspace/app/domain/repositories"
 	"github.com/yuonoda/bookspace/app/domain/repositories/mock"
@@ -58,7 +59,10 @@ func TestUsecase_CreateUser(t *testing.T) {
 				t.Error(diff)
 				t.Log(err)
 			}
-			if diff := cmp.Diff(got, tt.want); diff != "" {
+			opts := cmp.Options{
+				cmpopts.IgnoreFields(dto.User{}, "ID"),
+			}
+			if diff := cmp.Diff(got, tt.want, opts); diff != "" {
 				t.Error(diff)
 			}
 		})

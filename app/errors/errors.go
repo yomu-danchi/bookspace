@@ -1,18 +1,22 @@
 package errors
 
-import "github.com/yuonoda/bookspace/app/errors/codes"
+import (
+	"github.com/yuonoda/bookspace/app/errors/codes"
+)
 
-type Error struct {
-	Code codes.Code
+type AppError struct {
+	Code  codes.Code
+	error error
 }
 
-func (e Error) Error() string {
+func (e AppError) Error() string {
 	return ""
 }
 
-func Invalid() Error {
-	return Error{
-		Code: codes.Invalid,
+func Invalid(err error) AppError {
+	return AppError{
+		error: err,
+		Code:  codes.Invalid,
 	}
 }
 
@@ -20,7 +24,7 @@ func Code(err error) codes.Code {
 	if err == nil {
 		return codes.OK
 	}
-	if e, ok := err.(Error); ok {
+	if e, ok := err.(AppError); ok {
 		return e.Code
 	}
 	return codes.InternalError

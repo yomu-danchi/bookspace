@@ -1,6 +1,6 @@
 package dto
 
 type User struct {
-	ID   uint
+	ID   string
 	Name string
 }
