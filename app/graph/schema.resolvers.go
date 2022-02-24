@@ -8,8 +8,8 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/yuonoda/bookspace/graph/generated"
-	"github.com/yuonoda/bookspace/graph/model"
+	"github.com/yuonoda/bookspace/app/graph/generated"
+	"github.com/yuonoda/bookspace/app/graph/model"
 )
 
 func (r *mutationResolver) CreateBook(ctx context.Context, input model.NewBook) (*model.Book, error) {
