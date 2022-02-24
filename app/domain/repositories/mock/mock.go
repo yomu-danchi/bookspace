@@ -4,6 +4,7 @@
 package mock
 
 import (
+	"github.com/yuonoda/bookspace/app/domain/models/book"
 	"github.com/yuonoda/bookspace/app/domain/models/user"
 	"github.com/yuonoda/bookspace/app/domain/repositories"
 	"sync"
@@ -19,6 +20,9 @@ var _ repositories.Repository = &RepositoryMock{}
 //
 // 		// make and configure a mocked repositories.Repository
 // 		mockedRepository := &RepositoryMock{
+// 			RegisterBookFunc: func(bookMoqParam book.Book) error {
+// 				panic("mock out the RegisterBook method")
+// 			},
 // 			SaveUserFunc: func(userMoqParam user.User) error {
 // 				panic("mock out the SaveUser method")
 // 			},
@@ -29,18 +33,58 @@ var _ repositories.Repository = &RepositoryMock{}
 //
 // 	}
 type RepositoryMock struct {
+	// RegisterBookFunc mocks the RegisterBook method.
+	RegisterBookFunc func(bookMoqParam book.Book) error
+
 	// SaveUserFunc mocks the SaveUser method.
 	SaveUserFunc func(userMoqParam user.User) error
 
 	// calls tracks calls to the methods.
 	calls struct {
+		// RegisterBook holds details about calls to the RegisterBook method.
+		RegisterBook []struct {
+			// BookMoqParam is the bookMoqParam argument value.
+			BookMoqParam book.Book
+		}
 		// SaveUser holds details about calls to the SaveUser method.
 		SaveUser []struct {
 			// UserMoqParam is the userMoqParam argument value.
 			UserMoqParam user.User
 		}
 	}
-	lockSaveUser sync.RWMutex
+	lockRegisterBook sync.RWMutex
+	lockSaveUser     sync.RWMutex
+}
+
+// RegisterBook calls RegisterBookFunc.
+func (mock *RepositoryMock) RegisterBook(bookMoqParam book.Book) error {
+	if mock.RegisterBookFunc == nil {
+		panic("RepositoryMock.RegisterBookFunc: method is nil but Repository.RegisterBook was just called")
+	}
+	callInfo := struct {
+		BookMoqParam book.Book
+	}{
+		BookMoqParam: bookMoqParam,
+	}
+	mock.lockRegisterBook.Lock()
+	mock.calls.RegisterBook = append(mock.calls.RegisterBook, callInfo)
+	mock.lockRegisterBook.Unlock()
+	return mock.RegisterBookFunc(bookMoqParam)
+}
+
+// RegisterBookCalls gets all the calls that were made to RegisterBook.
+// Check the length with:
+//     len(mockedRepository.RegisterBookCalls())
+func (mock *RepositoryMock) RegisterBookCalls() []struct {
+	BookMoqParam book.Book
+} {
+	var calls []struct {
+		BookMoqParam book.Book
+	}
+	mock.lockRegisterBook.RLock()
+	calls = mock.calls.RegisterBook
+	mock.lockRegisterBook.RUnlock()
+	return calls
 }
 
 // SaveUser calls SaveUserFunc.
