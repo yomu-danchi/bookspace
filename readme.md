@@ -1,7 +1,6 @@
+## BookSpace: book management system for small community
 
-
-## インストール手順
-
+## How to build
 ```shell
 docker-compose up --build
 ```
