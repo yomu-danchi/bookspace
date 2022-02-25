@@ -21,21 +21,11 @@ import (
 
 func main() {
 	ctx := context.Background()
-	host := os.Getenv("FIRESTORE_EMULATOR_HOST")
-	log.Printf("host: %+v", host)
-	store, err := firestore.NewClient(ctx, "test-project-id")
+	store, err := firestore.NewClient(ctx, os.Getenv("GCLOUD_PROJECT_ID"))
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("store: %+v", store)
-
-	doc, _, err := store.Collection("users").Add(ctx, map[string]interface{}{
-		"name": "hello",
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("doc: %+v", doc)
+	initData(ctx, store)
 
 	//// Use the application default credentials
 	//ctx := context.Background()
@@ -93,6 +83,8 @@ func welcome() echo.HandlerFunc {
 			log.Fatal(err)
 		}
 		iter := store.Collection("users").Documents(ctx)
+
+		var users []map[string]interface{}
 		for {
 			doc, err := iter.Next()
 			if err == iterator.Done {
@@ -102,8 +94,18 @@ func welcome() echo.HandlerFunc {
 				log.Fatalf("Failed to iterate: %v", err)
 			}
 			fmt.Println(doc.Data())
+			users = append(users, doc.Data())
 		}
-		log.Printf("iter:%+v", iter)
-		return c.String(http.StatusOK, "Welcome to BookSpace API! ")
+		return c.JSON(http.StatusOK, users)
+	}
+}
+
+func initData(ctx context.Context, client *firestore.Client) {
+	_, _, err := client.Collection("users").Add(ctx, map[string]interface{}{
+		"ID":   "V1StGXR8_Z5jdHi6B-myT",
+		"name": "sample2",
+	})
+	if err != nil {
+		log.Fatal(err)
 	}
 }

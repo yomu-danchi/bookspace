@@ -1,5 +1,8 @@
 FROM golang:1.15.2-alpine
 
+ARG firestore_emulator_host
+ARG gcloud_project_id
+
 RUN apk update && apk add git
 RUN mkdir /go/src/app
 WORKDIR /go/src/app
@@ -9,7 +12,8 @@ RUN go mod download
 
 ADD . /go/src/app
 
-ENV FIRESTORE_EMULATOR_HOST firestore:8812
+ENV FIRESTORE_EMULATOR_HOST $firestore_emulator_host
+ENV GCLOUD_PROJECT_ID $gcloud_project_id
 
 EXPOSE 8000
 CMD ["go", "run", "main.go"]

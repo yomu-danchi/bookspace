@@ -4,6 +4,9 @@ services:
   app:
     build:
       context: app
+      args:
+        - firestore_emulator_host=firestore:8812
+        - gcloud_project_id=test-project-id
     tty: true
     ports:
       - 8000:8000
