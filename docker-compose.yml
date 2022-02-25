@@ -1,39 +1,28 @@
 version: "3"
 
 services:
-  db:
-    restart: always
-    image: mysql:5.7.24
-    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
-    ports:
-      - "3306:3306"
+  firestore:
+    build:
+      context: app/firestore
     environment:
-      MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_USER: localuser
-      MYSQL_PASSWORD: localpass
-      MYSQL_DATABASE: localdb
+      - PROJECT_ID=test-project-id
     volumes:
-      - ./db/init:/docker-entrypoint-initdb.d
-    healthcheck:
-      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
-      timeout: 20s
-      retries: 10
+      - ./app/firestore:/firestore
+    command: /bin/bash /firestore/start.sh
   app:
     build:
-      context: .
-      dockerfile: ./docker/go/Dockerfile
+      context: ./app
+    tty: true
     ports:
       - 8000:8000
-    command: "/app/server"
-    depends_on:
-      db:
-        condition: service_healthy
-  web:
-    build:
-      context: .
-      dockerfile: ./docker/nginx/Dockerfile
-    ports:
-      - 3000:3000
-    command: "npm run dev"
     volumes:
-      - ./frontend:/work/frontend
+      - ./app:/go/src/app
+#  web:
+#    build:
+#      context: .
+#      dockerfile: ./docker/nginx/Dockerfile
+#    ports:
+#      - 3000:3000
+#    command: "npm run dev"
+#    volumes:
+#      - ./frontend:/work/frontend
