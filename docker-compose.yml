@@ -1,17 +1,9 @@
 version: "3"
 
 services:
-  firestore:
-    build:
-      context: app/firestore
-    environment:
-      - PROJECT_ID=test-project-id
-    volumes:
-      - ./app/firestore:/firestore
-    command: /bin/bash /firestore/start.sh
   app:
     build:
-      context: ./app
+      context: app
     tty: true
     ports:
       - 8000:8000
@@ -26,3 +18,11 @@ services:
 #    command: "npm run dev"
 #    volumes:
 #      - ./frontend:/work/frontend
+  firestore:
+    build:
+      context: app/firestore
+    environment:
+      - PROJECT_ID=test-project-id
+    volumes:
+      - ./app/firestore:/firestore
+    command: /bin/bash /firestore/start.sh
