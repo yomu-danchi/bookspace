@@ -9,6 +9,8 @@ RUN go mod download
 
 ADD . /go/src/app
 
+ENV FIRESTORE_EMULATOR_HOST firestore:8812
+
 EXPOSE 8000
 CMD ["go", "run", "main.go"]
 

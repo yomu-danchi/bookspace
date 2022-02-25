@@ -9,6 +9,8 @@ services:
       - 8000:8000
     volumes:
       - ./app:/go/src/app
+    depends_on:
+      - firestore
 #  web:
 #    build:
 #      context: .
@@ -26,3 +28,5 @@ services:
     volumes:
       - ./app/firestore:/firestore
     command: /bin/bash /firestore/start.sh
+    ports:
+      - 8812:8812
