@@ -1,4 +1,4 @@
-## BookSpace: book management system for small community
+## BookSpace: book management system for a small community
 
 ## How to build
 ```shell
