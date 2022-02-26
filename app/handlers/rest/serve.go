@@ -19,6 +19,10 @@ func Serve() {
 	repo := firestore.NewRepository()
 	u := usecase.NewUseCase(repo)
 	h := NewHandler(u)
+
+	r.Get("/", func(writer http.ResponseWriter, request *http.Request) {
+		writer.Write([]byte("Welcome to BookSpace API"))
+	})
 	oapi.HandlerFromMux(h, r)
 
 	http.ListenAndServe(":8000", r)

@@ -7,6 +7,7 @@ import (
 	"github.com/yuonoda/bookspace/app/domain/models/book"
 	"github.com/yuonoda/bookspace/app/domain/models/user"
 	"github.com/yuonoda/bookspace/app/lib/ctxlib"
+	"golang.org/x/xerrors"
 	"google.golang.org/api/iterator"
 	"log"
 )
@@ -25,11 +26,9 @@ func (r *Repository) LoadUser(ctx context.Context, userID user.ID) (user.User, e
 }
 
 func (r *Repository) LoadUsers(ctx context.Context) (user.Users, error) {
-	log.Println("LoadUsers")
 	store := ctxlib.GetDB(ctx)
-	log.Printf("store* %+v", store)
 	iter := store.Collection("users").Documents(ctx)
-	var users []map[string]interface{}
+	var fetched []map[string]interface{}
 	for {
 		doc, err := iter.Next()
 		if err == iterator.Done {
@@ -39,11 +38,18 @@ func (r *Repository) LoadUsers(ctx context.Context) (user.Users, error) {
 			log.Fatalf("Failed to iterate: %v", err)
 		}
 		fmt.Println(doc.Data())
-		users = append(users, doc.Data())
+		fetched = append(fetched, doc.Data())
 	}
-	j, _ := json.Marshal(users)
-	log.Printf("j: %+v", j)
-	return user.Users{}, nil
+
+	bytes, err := json.Marshal(fetched)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to parse to json : %w", err)
+	}
+	var users user.Users
+	if err := json.Unmarshal(bytes, &users); err != nil {
+		return nil, xerrors.Errorf("failed to parse from json : %w", err)
+	}
+	return users, nil
 }
 
 func (r *Repository) SaveBook(ctx context.Context, book book.Book) error {
