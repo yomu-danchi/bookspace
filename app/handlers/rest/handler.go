@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
@@ -31,8 +32,8 @@ func Serve() {
 			fmt.Println(doc.Data())
 			users = append(users, doc.Data())
 		}
-		log.Printf("users: %+v", users)
-		w.Write([]byte("welcome"))
+		j, _ := json.Marshal(users)
+		w.Write(j)
 	})
 	http.ListenAndServe(":8000", r)
 }
