@@ -59,3 +59,7 @@ func (r *Repository) SaveBook(ctx context.Context, book book.Book) error {
 func (r *Repository) LoadBook(ctx context.Context, bookID book.ID) (book.Book, error) {
 	return book.Book{}, nil
 }
+
+func (r *Repository) LoadBooksOwnedBy(ctx context.Context, userID user.ID) (book.Books, error) {
+	return nil, nil
+}

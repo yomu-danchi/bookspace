@@ -5,12 +5,12 @@ import "github.com/yuonoda/bookspace/app/domain/models/user"
 type Book struct {
 	ID         ID
 	OwnerID    user.ID
-	BorrowerID *user.ID
+	BorrowerID user.ID
 	ISBN13     ISBN13 // TODO nullableにする
 	Title      Title
 }
 
-func NewBook(ID ID, ownerID user.ID, borrowerID *user.ID, isbn13 ISBN13, title Title) Book {
+func NewBook(ID ID, ownerID user.ID, borrowerID user.ID, isbn13 ISBN13, title Title) Book {
 	return Book{
 		ID:         ID,
 		OwnerID:    ownerID,
@@ -20,7 +20,7 @@ func NewBook(ID ID, ownerID user.ID, borrowerID *user.ID, isbn13 ISBN13, title T
 	}
 }
 
-func (b Book) UpdateBorrower(borrowerID *user.ID) Book {
+func (b Book) UpdateBorrower(borrowerID user.ID) Book {
 	return Book{
 		ID:         b.ID,
 		OwnerID:    b.OwnerID,

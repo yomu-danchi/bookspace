@@ -261,7 +261,7 @@ func TestUsecase_BorrowBook(t *testing.T) {
 								Title:      "book1",
 								ISBN13:     book.ISBN13("978-1-56619-909-4"),
 								OwnerID:    userID1,
-								BorrowerID: &userID2,
+								BorrowerID: userID2,
 							}
 							if diff := cmp.Diff(gotBook, wantBook); diff != "" {
 								t.Fatal(diff)
@@ -284,6 +284,99 @@ func TestUsecase_BorrowBook(t *testing.T) {
 			if diff := cmp.Diff(errors.Code(err), tt.wantError); diff != "" {
 				t.Error(diff)
 				t.Log(err)
+			}
+		})
+	}
+}
+func TestUsecase_GetUser(t *testing.T) {
+	userID1 := user.ID("V1StGXR8_Z5jdHi6B-myU")
+	bookID1 := book.ID("V1StGXR8_Z5jdHi6B-aaa")
+	bookID2 := book.ID("V1StGXR8_Z5jdHi6B-aab")
+	type fields struct {
+		repositories func(t *testing.T) repositories.Repository
+	}
+	type args struct {
+		ctx    context.Context
+		userID string
+	}
+	tests := []struct {
+		name      string
+		args      args
+		fields    fields
+		wantError codes.Code
+		want      dto.User
+	}{
+		{
+			name: "pass",
+			args: args{
+				userID: userID1.String(),
+			},
+			fields: fields{
+				repositories: func(t *testing.T) repositories.Repository {
+					return &mock.RepositoryMock{
+						LoadBooksOwnedByFunc: func(ctx context.Context, userID user.ID) (book.Books, error) {
+							return book.Books{
+								{
+									ID:         bookID1,
+									OwnerID:    userID1,
+									BorrowerID: "",
+									ISBN13:     "book1_ISBN13",
+									Title:      "book1_title",
+								},
+								{
+									ID:         bookID2,
+									OwnerID:    userID1,
+									BorrowerID: "",
+									ISBN13:     "book1_ISBN13",
+									Title:      "book1_title",
+								},
+							}, nil
+						},
+						LoadUserFunc: func(ctx context.Context, userID user.ID) (user.User, error) {
+							return user.User{
+								ID:   userID1,
+								Name: "user1_name",
+							}, nil
+						},
+					}
+				},
+			},
+			want: dto.User{
+				ID:   userID1.String(),
+				Name: "user1_name",
+				OwnedBooks: dto.Books{
+					{
+						ID:         bookID1.String(),
+						OwnerID:    userID1.String(),
+						BorrowerID: "",
+						ISBN13:     "book1_ISBN13",
+						Title:      "book1_title",
+					},
+					{
+						ID:         bookID2.String(),
+						OwnerID:    userID1.String(),
+						BorrowerID: "",
+						ISBN13:     "book1_ISBN13",
+						Title:      "book1_title",
+					},
+				},
+			},
+			wantError: codes.OK,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			u := Usecase{
+				repository: tt.fields.repositories(t),
+			}
+			user, err := u.GetUser(tt.args.ctx, tt.args.userID)
+			if diff := cmp.Diff(errors.Code(err), tt.wantError); diff != "" {
+				t.Error(diff)
+				t.Log(err)
+			}
+			if diff := cmp.Diff(user, tt.want); diff != "" {
+				t.Error(diff)
 			}
 		})
 	}

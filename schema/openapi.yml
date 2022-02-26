@@ -6,31 +6,77 @@ info:
 servers:
   - url: http://api.example.com/v1
     description: Optional server description, e.g. Main (production) server
-  - url: http://staging-api.example.com
-    description: Optional server description, e.g. Internal staging server for testing
 paths:
   /users:
     get:
-      summary: Returns a list of users.
-      description: Optional extended description in CommonMark or HTML.
       responses:
-        '200':    # status code
-          description: A JSON array of user names
+        '200':
+          description: ""
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/Users'
+  /users/{userID}:
+    get:
+      responses:
+        '200':
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserWithBooks'
+      parameters:
+        - in: path
+          name: userID
+          schema:
+            type: string
+          required: true
 components:
   schemas:
+    Users:
+      type: array
+      items:
+        $ref: '#/components/schemas/User'
     User:
       type: object
       properties:
-        id:
-          type: integer
-          example: 4
+        ID:
+          type: string
         name:
           type: string
-          example: Arthur Dent
       required:
-        - id
+        - ID
         - name
+    UserWithBooks:
+      type: object
+      properties:
+        ID:
+          type: string
+        name:
+          type: string
+        owenedBooks:
+          $ref: '#/components/schemas/Books'
+      required:
+        - ID
+        - name
+    Book:
+      type: object
+      properties:
+        ID:
+          type: string
+        ISBN13:
+          type: string
+        title:
+          type: string
+        ownerID:
+          type: string
+      required:
+        - ID
+        - ISBN13
+        - title
+        - ownerID
+    Books:
+      type: array
+      items:
+        $ref: '#/components/schemas/Book'
+

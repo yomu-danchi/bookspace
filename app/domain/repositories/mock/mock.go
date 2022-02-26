@@ -24,6 +24,9 @@ var _ repositories.Repository = &RepositoryMock{}
 // 			LoadBookFunc: func(ctx context.Context, bookID book.ID) (book.Book, error) {
 // 				panic("mock out the LoadBook method")
 // 			},
+// 			LoadBooksOwnedByFunc: func(ctx context.Context, userID user.ID) (book.Books, error) {
+// 				panic("mock out the LoadBooksOwnedBy method")
+// 			},
 // 			LoadUserFunc: func(ctx context.Context, userID user.ID) (user.User, error) {
 // 				panic("mock out the LoadUser method")
 // 			},
@@ -46,6 +49,9 @@ type RepositoryMock struct {
 	// LoadBookFunc mocks the LoadBook method.
 	LoadBookFunc func(ctx context.Context, bookID book.ID) (book.Book, error)
 
+	// LoadBooksOwnedByFunc mocks the LoadBooksOwnedBy method.
+	LoadBooksOwnedByFunc func(ctx context.Context, userID user.ID) (book.Books, error)
+
 	// LoadUserFunc mocks the LoadUser method.
 	LoadUserFunc func(ctx context.Context, userID user.ID) (user.User, error)
 
@@ -66,6 +72,13 @@ type RepositoryMock struct {
 			Ctx context.Context
 			// BookID is the bookID argument value.
 			BookID book.ID
+		}
+		// LoadBooksOwnedBy holds details about calls to the LoadBooksOwnedBy method.
+		LoadBooksOwnedBy []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// UserID is the userID argument value.
+			UserID user.ID
 		}
 		// LoadUser holds details about calls to the LoadUser method.
 		LoadUser []struct {
@@ -94,11 +107,12 @@ type RepositoryMock struct {
 			UserMoqParam user.User
 		}
 	}
-	lockLoadBook  sync.RWMutex
-	lockLoadUser  sync.RWMutex
-	lockLoadUsers sync.RWMutex
-	lockSaveBook  sync.RWMutex
-	lockSaveUser  sync.RWMutex
+	lockLoadBook         sync.RWMutex
+	lockLoadBooksOwnedBy sync.RWMutex
+	lockLoadUser         sync.RWMutex
+	lockLoadUsers        sync.RWMutex
+	lockSaveBook         sync.RWMutex
+	lockSaveUser         sync.RWMutex
 }
 
 // LoadBook calls LoadBookFunc.
@@ -133,6 +147,41 @@ func (mock *RepositoryMock) LoadBookCalls() []struct {
 	mock.lockLoadBook.RLock()
 	calls = mock.calls.LoadBook
 	mock.lockLoadBook.RUnlock()
+	return calls
+}
+
+// LoadBooksOwnedBy calls LoadBooksOwnedByFunc.
+func (mock *RepositoryMock) LoadBooksOwnedBy(ctx context.Context, userID user.ID) (book.Books, error) {
+	if mock.LoadBooksOwnedByFunc == nil {
+		panic("RepositoryMock.LoadBooksOwnedByFunc: method is nil but Repository.LoadBooksOwnedBy was just called")
+	}
+	callInfo := struct {
+		Ctx    context.Context
+		UserID user.ID
+	}{
+		Ctx:    ctx,
+		UserID: userID,
+	}
+	mock.lockLoadBooksOwnedBy.Lock()
+	mock.calls.LoadBooksOwnedBy = append(mock.calls.LoadBooksOwnedBy, callInfo)
+	mock.lockLoadBooksOwnedBy.Unlock()
+	return mock.LoadBooksOwnedByFunc(ctx, userID)
+}
+
+// LoadBooksOwnedByCalls gets all the calls that were made to LoadBooksOwnedBy.
+// Check the length with:
+//     len(mockedRepository.LoadBooksOwnedByCalls())
+func (mock *RepositoryMock) LoadBooksOwnedByCalls() []struct {
+	Ctx    context.Context
+	UserID user.ID
+} {
+	var calls []struct {
+		Ctx    context.Context
+		UserID user.ID
+	}
+	mock.lockLoadBooksOwnedBy.RLock()
+	calls = mock.calls.LoadBooksOwnedBy
+	mock.lockLoadBooksOwnedBy.RUnlock()
 	return calls
 }
 
