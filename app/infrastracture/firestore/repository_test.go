@@ -118,3 +118,57 @@ func TestRepository_LoadUsers(t *testing.T) {
 	}
 
 }
+func TestRepository_LoadUser(t *testing.T) {
+	type args struct {
+		ctx    context.Context
+		userID user.ID
+	}
+	tests := []struct {
+		name      string
+		fixtures  func(ctx context.Context)
+		args      args
+		want      user.User
+		wantError codes.Code
+	}{
+		{
+			name: "success",
+			fixtures: func(ctx context.Context) {
+				collection := testStore.Collection("users")
+				deleteCollection(ctx, testStore, collection, 100)
+				_, _, err := collection.Add(ctx, map[string]interface{}{
+					"ID":   "V1StGXR8_Z5jdHi6B-myT",
+					"name": "test_user1",
+				})
+				if err != nil {
+					log.Fatal(err)
+				}
+			},
+			args: args{
+				ctx:    context.WithValue(context.Background(), ctxlib.DBContextKey, testStore),
+				userID: user.ID("V1StGXR8_Z5jdHi6B-myT"),
+			},
+			want: user.User{
+				ID:   "V1StGXR8_Z5jdHi6B-myT",
+				Name: "test_user1",
+			},
+			wantError: codes.OK,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r := Repository{}
+			ctx := tt.args.ctx
+			tt.fixtures(ctx)
+			got, err := r.LoadUser(ctx, tt.args.userID)
+			if diff := cmp.Diff(errors.Code(err), tt.wantError); diff != "" {
+				t.Errorf(diff)
+				t.Log(err)
+			}
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Error(diff)
+			}
+		})
+	}
+
+}
