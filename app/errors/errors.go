@@ -27,6 +27,13 @@ func NotFound(err error) AppError {
 	}
 }
 
+func Internal(err error) AppError {
+	return AppError{
+		error: err,
+		Code:  codes.InternalError,
+	}
+}
+
 func Code(err error) codes.Code {
 	if err == nil {
 		return codes.OK

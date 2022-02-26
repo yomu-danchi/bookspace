@@ -28,12 +28,17 @@ func (u *Usecase) CreateUser(dtoUser dto.User) (dto.User, error) {
 	if err := u.repository.SaveUser(newUser); err != nil {
 		return dto.User{}, xerrors.Errorf(": %w", err)
 	}
+	newDtoUser := dto.ToDtoUser(newUser)
+	return newDtoUser, nil
+}
 
-	createdUser := dto.User{
-		ID:   newUserID.String(),
-		Name: newUserName.String(),
+func (u *Usecase) GetUsers() (dto.Users, error) {
+	users, err := u.repository.LoadUsers()
+	if err != nil {
+		return nil, xerrors.Errorf(": %w", err)
 	}
-	return createdUser, nil
+	dtoUsers := dto.ToDtoUsers(users)
+	return dtoUsers, nil
 }
 
 func (u *Usecase) RegisterBook(dtoBook dto.Book) (dto.Book, error) {

@@ -26,6 +26,9 @@ var _ repositories.Repository = &RepositoryMock{}
 // 			LoadUserFunc: func(userID user.ID) (*user.User, error) {
 // 				panic("mock out the LoadUser method")
 // 			},
+// 			LoadUsersFunc: func() (user.Users, error) {
+// 				panic("mock out the LoadUsers method")
+// 			},
 // 			SaveBookFunc: func(bookMoqParam book.Book) error {
 // 				panic("mock out the SaveBook method")
 // 			},
@@ -45,6 +48,9 @@ type RepositoryMock struct {
 	// LoadUserFunc mocks the LoadUser method.
 	LoadUserFunc func(userID user.ID) (*user.User, error)
 
+	// LoadUsersFunc mocks the LoadUsers method.
+	LoadUsersFunc func() (user.Users, error)
+
 	// SaveBookFunc mocks the SaveBook method.
 	SaveBookFunc func(bookMoqParam book.Book) error
 
@@ -63,6 +69,9 @@ type RepositoryMock struct {
 			// UserID is the userID argument value.
 			UserID user.ID
 		}
+		// LoadUsers holds details about calls to the LoadUsers method.
+		LoadUsers []struct {
+		}
 		// SaveBook holds details about calls to the SaveBook method.
 		SaveBook []struct {
 			// BookMoqParam is the bookMoqParam argument value.
@@ -74,10 +83,11 @@ type RepositoryMock struct {
 			UserMoqParam user.User
 		}
 	}
-	lockLoadBook sync.RWMutex
-	lockLoadUser sync.RWMutex
-	lockSaveBook sync.RWMutex
-	lockSaveUser sync.RWMutex
+	lockLoadBook  sync.RWMutex
+	lockLoadUser  sync.RWMutex
+	lockLoadUsers sync.RWMutex
+	lockSaveBook  sync.RWMutex
+	lockSaveUser  sync.RWMutex
 }
 
 // LoadBook calls LoadBookFunc.
@@ -139,6 +149,32 @@ func (mock *RepositoryMock) LoadUserCalls() []struct {
 	mock.lockLoadUser.RLock()
 	calls = mock.calls.LoadUser
 	mock.lockLoadUser.RUnlock()
+	return calls
+}
+
+// LoadUsers calls LoadUsersFunc.
+func (mock *RepositoryMock) LoadUsers() (user.Users, error) {
+	if mock.LoadUsersFunc == nil {
+		panic("RepositoryMock.LoadUsersFunc: method is nil but Repository.LoadUsers was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockLoadUsers.Lock()
+	mock.calls.LoadUsers = append(mock.calls.LoadUsers, callInfo)
+	mock.lockLoadUsers.Unlock()
+	return mock.LoadUsersFunc()
+}
+
+// LoadUsersCalls gets all the calls that were made to LoadUsers.
+// Check the length with:
+//     len(mockedRepository.LoadUsersCalls())
+func (mock *RepositoryMock) LoadUsersCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockLoadUsers.RLock()
+	calls = mock.calls.LoadUsers
+	mock.lockLoadUsers.RUnlock()
 	return calls
 }
 

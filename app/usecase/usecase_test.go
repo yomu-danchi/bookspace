@@ -69,6 +69,66 @@ func TestUsecase_CreateUser(t *testing.T) {
 		})
 	}
 }
+func TestUsecase_GetUsers(t *testing.T) {
+	type fields struct {
+		repositories func(t *testing.T) repositories.Repository
+	}
+	tests := []struct {
+		name      string
+		fields    fields
+		wantError codes.Code
+		want      dto.Users
+	}{
+		{
+			name: "pass",
+			fields: fields{
+				repositories: func(t *testing.T) repositories.Repository {
+					return &mock.RepositoryMock{
+						LoadUsersFunc: func() (user.Users, error) {
+							return user.Users{
+								{
+									Name: "user1",
+									ID:   "user1_id",
+								},
+								{
+									Name: "user2",
+									ID:   "user2_id",
+								},
+							}, nil
+						},
+					}
+				},
+			},
+			wantError: codes.OK,
+			want: dto.Users{
+				{
+					Name: "user1",
+					ID:   "user1_id",
+				},
+				{
+					Name: "user2",
+					ID:   "user2_id",
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			u := Usecase{
+				repository: tt.fields.repositories(t),
+			}
+			got, err := u.GetUsers()
+			if diff := cmp.Diff(errors.Code(err), tt.wantError); diff != "" {
+				t.Error(diff)
+				t.Log(err)
+			}
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Error(diff)
+			}
+		})
+	}
+}
 func TestUsecase_RegisterBook(t *testing.T) {
 	const ownerID1 = "V1StGXR8_Z5jdHi6B-myU"
 	type fields struct {
