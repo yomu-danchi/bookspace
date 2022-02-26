@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/yuonoda/bookspace/app/domain/models/book"
@@ -18,6 +19,7 @@ func TestUsecase_CreateUser(t *testing.T) {
 		repositories func(t *testing.T) repositories.Repository
 	}
 	type args struct {
+		ctx     context.Context
 		dtoUser dto.User
 	}
 	tests := []struct {
@@ -30,6 +32,7 @@ func TestUsecase_CreateUser(t *testing.T) {
 		{
 			name: "pass",
 			args: args{
+				context.Background(),
 				dto.User{
 					Name: "Taro",
 				},
@@ -37,7 +40,7 @@ func TestUsecase_CreateUser(t *testing.T) {
 			fields: fields{
 				repositories: func(t *testing.T) repositories.Repository {
 					return &mock.RepositoryMock{
-						SaveUserFunc: func(user user.User) error {
+						SaveUserFunc: func(ctx context.Context, user user.User) error {
 							return nil
 						},
 					}
@@ -55,7 +58,7 @@ func TestUsecase_CreateUser(t *testing.T) {
 			u := Usecase{
 				repository: tt.fields.repositories(t),
 			}
-			got, err := u.CreateUser(tt.args.dtoUser)
+			got, err := u.CreateUser(tt.args.ctx, tt.args.dtoUser)
 			if diff := cmp.Diff(errors.Code(err), tt.wantError); diff != "" {
 				t.Error(diff)
 				t.Log(err)
@@ -73,9 +76,13 @@ func TestUsecase_GetUsers(t *testing.T) {
 	type fields struct {
 		repositories func(t *testing.T) repositories.Repository
 	}
+	type args struct {
+		ctx context.Context
+	}
 	tests := []struct {
 		name      string
 		fields    fields
+		args      args
 		wantError codes.Code
 		want      dto.Users
 	}{
@@ -84,7 +91,7 @@ func TestUsecase_GetUsers(t *testing.T) {
 			fields: fields{
 				repositories: func(t *testing.T) repositories.Repository {
 					return &mock.RepositoryMock{
-						LoadUsersFunc: func() (user.Users, error) {
+						LoadUsersFunc: func(ctx context.Context) (user.Users, error) {
 							return user.Users{
 								{
 									Name: "user1",
@@ -118,7 +125,7 @@ func TestUsecase_GetUsers(t *testing.T) {
 			u := Usecase{
 				repository: tt.fields.repositories(t),
 			}
-			got, err := u.GetUsers()
+			got, err := u.GetUsers(tt.args.ctx)
 			if diff := cmp.Diff(errors.Code(err), tt.wantError); diff != "" {
 				t.Error(diff)
 				t.Log(err)
@@ -135,6 +142,7 @@ func TestUsecase_RegisterBook(t *testing.T) {
 		repositories func(t *testing.T) repositories.Repository
 	}
 	type args struct {
+		ctx     context.Context
 		dtoBook dto.Book
 	}
 	tests := []struct {
@@ -147,6 +155,7 @@ func TestUsecase_RegisterBook(t *testing.T) {
 		{
 			name: "pass",
 			args: args{
+				context.Background(),
 				dto.Book{
 					Title:   "book1",
 					ISBN13:  "978-1-56619-909-4",
@@ -156,7 +165,7 @@ func TestUsecase_RegisterBook(t *testing.T) {
 			fields: fields{
 				repositories: func(t *testing.T) repositories.Repository {
 					return &mock.RepositoryMock{
-						SaveBookFunc: func(gotBook book.Book) error {
+						SaveBookFunc: func(ctx context.Context, gotBook book.Book) error {
 							wantBook := book.Book{
 								ID:      book.ID("V1StGXR8_Z5jdHi6B-myT"),
 								Title:   "book1",
@@ -190,7 +199,7 @@ func TestUsecase_RegisterBook(t *testing.T) {
 			u := Usecase{
 				repository: tt.fields.repositories(t),
 			}
-			got, err := u.RegisterBook(tt.args.dtoBook)
+			got, err := u.RegisterBook(tt.args.ctx, tt.args.dtoBook)
 			if diff := cmp.Diff(errors.Code(err), tt.wantError); diff != "" {
 				t.Error(diff)
 				t.Log(err)
@@ -212,6 +221,7 @@ func TestUsecase_BorrowBook(t *testing.T) {
 		repositories func(t *testing.T) repositories.Repository
 	}
 	type args struct {
+		ctx        context.Context
 		bookID     string
 		borrowerID string
 	}
@@ -231,7 +241,7 @@ func TestUsecase_BorrowBook(t *testing.T) {
 			fields: fields{
 				repositories: func(t *testing.T) repositories.Repository {
 					return &mock.RepositoryMock{
-						LoadBookFunc: func(bookID book.ID) (*book.Book, error) {
+						LoadBookFunc: func(ctx context.Context, bookID book.ID) (*book.Book, error) {
 							return &book.Book{
 								ID:      bookID1,
 								Title:   "book1",
@@ -239,13 +249,13 @@ func TestUsecase_BorrowBook(t *testing.T) {
 								OwnerID: userID1,
 							}, nil
 						},
-						LoadUserFunc: func(userID user.ID) (*user.User, error) {
+						LoadUserFunc: func(ctx context.Context, userID user.ID) (*user.User, error) {
 							return &user.User{
 								ID:   userID2,
 								Name: "Taro",
 							}, nil
 						},
-						SaveBookFunc: func(gotBook book.Book) error {
+						SaveBookFunc: func(ctx context.Context, gotBook book.Book) error {
 							wantBook := book.Book{
 								ID:         bookID1,
 								Title:      "book1",
@@ -270,7 +280,7 @@ func TestUsecase_BorrowBook(t *testing.T) {
 			u := Usecase{
 				repository: tt.fields.repositories(t),
 			}
-			err := u.BorrowBook(tt.args.bookID, tt.args.borrowerID)
+			err := u.BorrowBook(tt.args.ctx, tt.args.bookID, tt.args.borrowerID)
 			if diff := cmp.Diff(errors.Code(err), tt.wantError); diff != "" {
 				t.Error(diff)
 				t.Log(err)

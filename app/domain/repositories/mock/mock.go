@@ -4,6 +4,7 @@
 package mock
 
 import (
+	"context"
 	"github.com/yuonoda/bookspace/app/domain/models/book"
 	"github.com/yuonoda/bookspace/app/domain/models/user"
 	"github.com/yuonoda/bookspace/app/domain/repositories"
@@ -20,19 +21,19 @@ var _ repositories.Repository = &RepositoryMock{}
 //
 // 		// make and configure a mocked repositories.Repository
 // 		mockedRepository := &RepositoryMock{
-// 			LoadBookFunc: func(bookID book.ID) (*book.Book, error) {
+// 			LoadBookFunc: func(ctx context.Context, bookID book.ID) (*book.Book, error) {
 // 				panic("mock out the LoadBook method")
 // 			},
-// 			LoadUserFunc: func(userID user.ID) (*user.User, error) {
+// 			LoadUserFunc: func(ctx context.Context, userID user.ID) (*user.User, error) {
 // 				panic("mock out the LoadUser method")
 // 			},
-// 			LoadUsersFunc: func() (user.Users, error) {
+// 			LoadUsersFunc: func(ctx context.Context) (user.Users, error) {
 // 				panic("mock out the LoadUsers method")
 // 			},
-// 			SaveBookFunc: func(bookMoqParam book.Book) error {
+// 			SaveBookFunc: func(ctx context.Context, bookMoqParam book.Book) error {
 // 				panic("mock out the SaveBook method")
 // 			},
-// 			SaveUserFunc: func(userMoqParam user.User) error {
+// 			SaveUserFunc: func(ctx context.Context, userMoqParam user.User) error {
 // 				panic("mock out the SaveUser method")
 // 			},
 // 		}
@@ -43,42 +44,52 @@ var _ repositories.Repository = &RepositoryMock{}
 // 	}
 type RepositoryMock struct {
 	// LoadBookFunc mocks the LoadBook method.
-	LoadBookFunc func(bookID book.ID) (*book.Book, error)
+	LoadBookFunc func(ctx context.Context, bookID book.ID) (*book.Book, error)
 
 	// LoadUserFunc mocks the LoadUser method.
-	LoadUserFunc func(userID user.ID) (*user.User, error)
+	LoadUserFunc func(ctx context.Context, userID user.ID) (*user.User, error)
 
 	// LoadUsersFunc mocks the LoadUsers method.
-	LoadUsersFunc func() (user.Users, error)
+	LoadUsersFunc func(ctx context.Context) (user.Users, error)
 
 	// SaveBookFunc mocks the SaveBook method.
-	SaveBookFunc func(bookMoqParam book.Book) error
+	SaveBookFunc func(ctx context.Context, bookMoqParam book.Book) error
 
 	// SaveUserFunc mocks the SaveUser method.
-	SaveUserFunc func(userMoqParam user.User) error
+	SaveUserFunc func(ctx context.Context, userMoqParam user.User) error
 
 	// calls tracks calls to the methods.
 	calls struct {
 		// LoadBook holds details about calls to the LoadBook method.
 		LoadBook []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// BookID is the bookID argument value.
 			BookID book.ID
 		}
 		// LoadUser holds details about calls to the LoadUser method.
 		LoadUser []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// UserID is the userID argument value.
 			UserID user.ID
 		}
 		// LoadUsers holds details about calls to the LoadUsers method.
 		LoadUsers []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 		}
 		// SaveBook holds details about calls to the SaveBook method.
 		SaveBook []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// BookMoqParam is the bookMoqParam argument value.
 			BookMoqParam book.Book
 		}
 		// SaveUser holds details about calls to the SaveUser method.
 		SaveUser []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// UserMoqParam is the userMoqParam argument value.
 			UserMoqParam user.User
 		}
@@ -91,28 +102,32 @@ type RepositoryMock struct {
 }
 
 // LoadBook calls LoadBookFunc.
-func (mock *RepositoryMock) LoadBook(bookID book.ID) (*book.Book, error) {
+func (mock *RepositoryMock) LoadBook(ctx context.Context, bookID book.ID) (*book.Book, error) {
 	if mock.LoadBookFunc == nil {
 		panic("RepositoryMock.LoadBookFunc: method is nil but Repository.LoadBook was just called")
 	}
 	callInfo := struct {
+		Ctx    context.Context
 		BookID book.ID
 	}{
+		Ctx:    ctx,
 		BookID: bookID,
 	}
 	mock.lockLoadBook.Lock()
 	mock.calls.LoadBook = append(mock.calls.LoadBook, callInfo)
 	mock.lockLoadBook.Unlock()
-	return mock.LoadBookFunc(bookID)
+	return mock.LoadBookFunc(ctx, bookID)
 }
 
 // LoadBookCalls gets all the calls that were made to LoadBook.
 // Check the length with:
 //     len(mockedRepository.LoadBookCalls())
 func (mock *RepositoryMock) LoadBookCalls() []struct {
+	Ctx    context.Context
 	BookID book.ID
 } {
 	var calls []struct {
+		Ctx    context.Context
 		BookID book.ID
 	}
 	mock.lockLoadBook.RLock()
@@ -122,28 +137,32 @@ func (mock *RepositoryMock) LoadBookCalls() []struct {
 }
 
 // LoadUser calls LoadUserFunc.
-func (mock *RepositoryMock) LoadUser(userID user.ID) (*user.User, error) {
+func (mock *RepositoryMock) LoadUser(ctx context.Context, userID user.ID) (*user.User, error) {
 	if mock.LoadUserFunc == nil {
 		panic("RepositoryMock.LoadUserFunc: method is nil but Repository.LoadUser was just called")
 	}
 	callInfo := struct {
+		Ctx    context.Context
 		UserID user.ID
 	}{
+		Ctx:    ctx,
 		UserID: userID,
 	}
 	mock.lockLoadUser.Lock()
 	mock.calls.LoadUser = append(mock.calls.LoadUser, callInfo)
 	mock.lockLoadUser.Unlock()
-	return mock.LoadUserFunc(userID)
+	return mock.LoadUserFunc(ctx, userID)
 }
 
 // LoadUserCalls gets all the calls that were made to LoadUser.
 // Check the length with:
 //     len(mockedRepository.LoadUserCalls())
 func (mock *RepositoryMock) LoadUserCalls() []struct {
+	Ctx    context.Context
 	UserID user.ID
 } {
 	var calls []struct {
+		Ctx    context.Context
 		UserID user.ID
 	}
 	mock.lockLoadUser.RLock()
@@ -153,24 +172,29 @@ func (mock *RepositoryMock) LoadUserCalls() []struct {
 }
 
 // LoadUsers calls LoadUsersFunc.
-func (mock *RepositoryMock) LoadUsers() (user.Users, error) {
+func (mock *RepositoryMock) LoadUsers(ctx context.Context) (user.Users, error) {
 	if mock.LoadUsersFunc == nil {
 		panic("RepositoryMock.LoadUsersFunc: method is nil but Repository.LoadUsers was just called")
 	}
 	callInfo := struct {
-	}{}
+		Ctx context.Context
+	}{
+		Ctx: ctx,
+	}
 	mock.lockLoadUsers.Lock()
 	mock.calls.LoadUsers = append(mock.calls.LoadUsers, callInfo)
 	mock.lockLoadUsers.Unlock()
-	return mock.LoadUsersFunc()
+	return mock.LoadUsersFunc(ctx)
 }
 
 // LoadUsersCalls gets all the calls that were made to LoadUsers.
 // Check the length with:
 //     len(mockedRepository.LoadUsersCalls())
 func (mock *RepositoryMock) LoadUsersCalls() []struct {
+	Ctx context.Context
 } {
 	var calls []struct {
+		Ctx context.Context
 	}
 	mock.lockLoadUsers.RLock()
 	calls = mock.calls.LoadUsers
@@ -179,28 +203,32 @@ func (mock *RepositoryMock) LoadUsersCalls() []struct {
 }
 
 // SaveBook calls SaveBookFunc.
-func (mock *RepositoryMock) SaveBook(bookMoqParam book.Book) error {
+func (mock *RepositoryMock) SaveBook(ctx context.Context, bookMoqParam book.Book) error {
 	if mock.SaveBookFunc == nil {
 		panic("RepositoryMock.SaveBookFunc: method is nil but Repository.SaveBook was just called")
 	}
 	callInfo := struct {
+		Ctx          context.Context
 		BookMoqParam book.Book
 	}{
+		Ctx:          ctx,
 		BookMoqParam: bookMoqParam,
 	}
 	mock.lockSaveBook.Lock()
 	mock.calls.SaveBook = append(mock.calls.SaveBook, callInfo)
 	mock.lockSaveBook.Unlock()
-	return mock.SaveBookFunc(bookMoqParam)
+	return mock.SaveBookFunc(ctx, bookMoqParam)
 }
 
 // SaveBookCalls gets all the calls that were made to SaveBook.
 // Check the length with:
 //     len(mockedRepository.SaveBookCalls())
 func (mock *RepositoryMock) SaveBookCalls() []struct {
+	Ctx          context.Context
 	BookMoqParam book.Book
 } {
 	var calls []struct {
+		Ctx          context.Context
 		BookMoqParam book.Book
 	}
 	mock.lockSaveBook.RLock()
@@ -210,28 +238,32 @@ func (mock *RepositoryMock) SaveBookCalls() []struct {
 }
 
 // SaveUser calls SaveUserFunc.
-func (mock *RepositoryMock) SaveUser(userMoqParam user.User) error {
+func (mock *RepositoryMock) SaveUser(ctx context.Context, userMoqParam user.User) error {
 	if mock.SaveUserFunc == nil {
 		panic("RepositoryMock.SaveUserFunc: method is nil but Repository.SaveUser was just called")
 	}
 	callInfo := struct {
+		Ctx          context.Context
 		UserMoqParam user.User
 	}{
+		Ctx:          ctx,
 		UserMoqParam: userMoqParam,
 	}
 	mock.lockSaveUser.Lock()
 	mock.calls.SaveUser = append(mock.calls.SaveUser, callInfo)
 	mock.lockSaveUser.Unlock()
-	return mock.SaveUserFunc(userMoqParam)
+	return mock.SaveUserFunc(ctx, userMoqParam)
 }
 
 // SaveUserCalls gets all the calls that were made to SaveUser.
 // Check the length with:
 //     len(mockedRepository.SaveUserCalls())
 func (mock *RepositoryMock) SaveUserCalls() []struct {
+	Ctx          context.Context
 	UserMoqParam user.User
 } {
 	var calls []struct {
+		Ctx          context.Context
 		UserMoqParam user.User
 	}
 	mock.lockSaveUser.RLock()

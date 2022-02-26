@@ -17,6 +17,10 @@ func (r *repository) LoadUser(userID user.ID) (*user.User, error) {
 	return nil, nil
 }
 
+func (r *repository) LoadUsers(ctx, userID user.ID) (*user.User, error) {
+	return nil, nil
+}
+
 func (r *repository) SaveBook(book book.Book) error {
 	return nil
 }
