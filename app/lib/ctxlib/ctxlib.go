@@ -14,7 +14,6 @@ const (
 
 func GetDB(ctx context.Context) *firestore.Client {
 	db := ctx.Value(DBContextKey)
-	log.Printf("db: %+v", db)
 	client, ok := db.(*firestore.Client)
 	if !ok {
 		log.Fatal(xerrors.Errorf("unexpected db client type"))
@@ -23,7 +22,8 @@ func GetDB(ctx context.Context) *firestore.Client {
 }
 
 func SetDB(ctx context.Context) context.Context {
-	store, err := firestore.NewClient(ctx, os.Getenv("GCLOUD_PROJECT_ID"))
+	projectID := os.Getenv("GCLOUD_PROJECT_ID")
+	store, err := firestore.NewClient(ctx, projectID)
 	if err != nil {
 		log.Fatal(err)
 	}

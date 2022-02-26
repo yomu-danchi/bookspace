@@ -6,7 +6,7 @@ services:
       context: app
       args:
         - firestore_emulator_host=firestore:8812
-        - gcloud_project_id=test-project-id
+        - gcloud_project_id=local-project
     tty: true
     ports:
       - 8000:8000
@@ -27,9 +27,19 @@ services:
     build:
       context: app/firestore
     environment:
-      - PROJECT_ID=test-project-id
+      - PROJECT_ID=local-project
     volumes:
       - ./app/firestore:/firestore
     command: /bin/bash /firestore/start.sh
     ports:
       - 8812:8812
+  firestore-test:
+    build:
+      context: app/firestore
+    environment:
+      - PROJECT_ID=test-project
+    volumes:
+      - ./app/firestore:/firestore
+    command: /bin/bash /firestore/start.sh
+    ports:
+      - 8813:8813
