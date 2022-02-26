@@ -9,6 +9,7 @@ servers:
 paths:
   /users:
     get:
+      operationId: getUsers
       responses:
         '200':
           description: ""
@@ -18,6 +19,7 @@ paths:
                 $ref: '#/components/schemas/Users'
   /users/{userID}:
     get:
+      operationId: getUser
       responses:
         '200':
           description: ""

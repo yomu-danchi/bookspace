@@ -4,19 +4,46 @@
 package oapi
 
 import (
+	"context"
+	"fmt"
+	"github.com/deepmap/oapi-codegen/pkg/runtime"
 	"github.com/go-chi/chi"
 	"net/http"
 )
 
 type ServerInterface interface {
-	// Returns a list of users. (GET /users)
+	//  (GET /users)
 	GetUsers(w http.ResponseWriter, r *http.Request)
+	//  (GET /users/{userID})
+	GetUser(w http.ResponseWriter, r *http.Request)
 }
 
 // GetUsers operation middleware
 func GetUsersCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
+
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+// GetUser operation middleware
+func GetUserCtx(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+
+		var err error
+
+		// ------------- Path parameter "userID" -------------
+		var userID string
+
+		err = runtime.BindStyledParameter("simple", false, "userID", chi.URLParam(r, "userID"), &userID)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Invalid format for parameter userID: %s", err), http.StatusBadRequest)
+			return
+		}
+
+		ctx = context.WithValue(ctx, "userID", userID)
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
@@ -32,6 +59,10 @@ func HandlerFromMux(si ServerInterface, r chi.Router) http.Handler {
 	r.Group(func(r chi.Router) {
 		r.Use(GetUsersCtx)
 		r.Get("/users", si.GetUsers)
+	})
+	r.Group(func(r chi.Router) {
+		r.Use(GetUserCtx)
+		r.Get("/users/{userID}", si.GetUser)
 	})
 
 	return r
