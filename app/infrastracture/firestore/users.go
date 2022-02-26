@@ -18,8 +18,7 @@ func (r *Repository) SaveUser(ctx context.Context, user user.User) error {
 
 func (r *Repository) LoadUser(ctx context.Context, userID user.ID) (user.User, error) {
 	store := ctxlib.GetDB(ctx)
-	iter := store.Collection("users").Where("ID", "==", userID).Documents(ctx)
-
+	iter := store.Collection(usersCollectionName).Where("ID", "==", userID).Documents(ctx)
 	var fetched []map[string]interface{}
 	for {
 		doc, err := iter.Next()

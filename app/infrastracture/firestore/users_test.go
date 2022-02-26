@@ -25,7 +25,7 @@ func TestRepository_LoadUsers(t *testing.T) {
 		{
 			name: "success",
 			fixtures: func(ctx context.Context) {
-				collection := testStore.Collection("users")
+				collection := testStore.Collection(usersCollectionName)
 				deleteCollection(ctx, testStore, collection, 100)
 				_, _, err := collection.Add(ctx, map[string]interface{}{
 					"ID":   "V1StGXR8_Z5jdHi6B-myT",
@@ -80,7 +80,7 @@ func TestRepository_LoadUser(t *testing.T) {
 		{
 			name: "success",
 			fixtures: func(ctx context.Context) {
-				collection := testStore.Collection("users")
+				collection := testStore.Collection(usersCollectionName)
 				deleteCollection(ctx, testStore, collection, 100)
 				_, _, err := collection.Add(ctx, map[string]interface{}{
 					"ID":   "V1StGXR8_Z5jdHi6B-myT",
