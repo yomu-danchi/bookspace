@@ -24,6 +24,5 @@ func Serve() {
 		writer.Write([]byte("Welcome to BookSpace API"))
 	})
 	oapi.HandlerFromMux(h, r)
-
 	http.ListenAndServe(":8000", r)
 }

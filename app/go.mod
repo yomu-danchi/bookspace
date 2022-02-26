@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go/firestore v1.6.1
 	github.com/99designs/gqlgen v0.13.0
 	github.com/go-chi/chi v4.0.2+incompatible
-	github.com/go-chi/chi/v5 v5.0.7
+	github.com/go-chi/render v1.0.1
 	github.com/google/go-cmp v0.5.7
 	github.com/matoous/go-nanoid/v2 v2.0.0
 	github.com/vektah/gqlparser/v2 v2.1.0

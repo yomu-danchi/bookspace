@@ -1,8 +1,8 @@
 package rest
 
 import (
-	"encoding/json"
 	"fmt"
+	"github.com/go-chi/render"
 	"github.com/yuonoda/bookspace/app/usecase"
 	"log"
 	"net/http"
@@ -23,9 +23,8 @@ func (h handler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := h.usecase.GetUsers(ctx)
 	if err != nil {
 		// TODO エラーレスポンスを返す
-		log.Fatal(fmt.Errorf("failed to get users :%w", err))
+		log.Print(fmt.Errorf("failed to get users :%w", err))
+		render.Status(r, 404)
 	}
-	log.Printf("users: %+v", users)
-	j, _ := json.Marshal(users)
-	w.Write(j)
+	render.JSON(w, r, users)
 }
