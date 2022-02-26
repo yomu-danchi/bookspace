@@ -21,7 +21,7 @@ func (r *Repository) LoadBook(ctx context.Context, bookID book.ID) (book.Book, e
 
 func (r *Repository) LoadBooksOwnedBy(ctx context.Context, ownerID user.ID) (book.Books, error) {
 	store := ctxlib.GetDB(ctx)
-	iter := store.Collection(booksCollectionName).Where("OwnerID", "==", ownerID).Documents(ctx)
+	iter := store.Collection(BooksCollectionName).Where("OwnerID", "==", ownerID).Documents(ctx)
 	var fetched []map[string]interface{}
 	for {
 		doc, err := iter.Next()

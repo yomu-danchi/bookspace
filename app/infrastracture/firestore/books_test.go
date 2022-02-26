@@ -27,7 +27,7 @@ func TestRepository_LoadBooksOwnedBy(t *testing.T) {
 		{
 			name: "success",
 			fixtures: func(ctx context.Context) {
-				collection := testStore.Collection(booksCollectionName)
+				collection := testStore.Collection(BooksCollectionName)
 				deleteCollection(ctx, testStore, collection, 100)
 				_, err := collection.Doc("book1_ID").Set(ctx, map[string]interface{}{
 					"ID":         "book1_ID",

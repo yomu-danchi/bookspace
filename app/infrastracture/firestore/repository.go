@@ -7,6 +7,6 @@ func NewRepository() *Repository {
 }
 
 const (
-	booksCollectionName = "books"
-	usersCollectionName = "users"
+	BooksCollectionName = "books"
+	UsersCollectionName = "users"
 )
