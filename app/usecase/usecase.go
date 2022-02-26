@@ -14,6 +14,12 @@ type Usecase struct {
 	repository repositories.Repository
 }
 
+func NewUseCase(r repositories.Repository) *Usecase {
+	return &Usecase{
+		r,
+	}
+}
+
 func (u *Usecase) CreateUser(ctx context.Context, dtoUser dto.User) (dto.User, error) {
 	if dtoUser.ID != "" {
 		return dto.User{}, errors.Invalid(xerrors.Errorf("user id cannot exist, id: %s", dtoUser.ID))
@@ -78,17 +84,17 @@ func (u *Usecase) BorrowBook(ctx context.Context, bookID string, borrowerID stri
 	if err != nil {
 		return xerrors.Errorf(": %w", err)
 	}
-	if book == nil {
-		return errors.NotFound(xerrors.Errorf("book not found"))
-	}
+	//if book == nil {
+	//	return errors.NotFound(xerrors.Errorf("book not found"))
+	//}
 
 	user, err := u.repository.LoadUser(ctx, user.NewID(borrowerID))
 	if err != nil {
 		return xerrors.Errorf(": %w", err)
 	}
-	if book == nil {
-		return errors.NotFound(xerrors.Errorf("user not found"))
-	}
+	//if book == nil {
+	//	return errors.NotFound(xerrors.Errorf("user not found"))
+	//}
 
 	// 複雑になったら貸し出しエンティティを設けてもいいかも
 	borrowedBook := book.UpdateBorrower(&user.ID)

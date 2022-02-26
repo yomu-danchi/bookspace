@@ -65,7 +65,7 @@ func TestRepository_LoadUsers(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := repository{}
+			r := Repository{}
 			ctx := tt.args.ctx
 			//tt.fixtures(ctx)
 			got, err := r.LoadUsers(ctx)

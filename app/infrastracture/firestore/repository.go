@@ -1,7 +1,6 @@
 package firestore
 
 import (
-	"cloud.google.com/go/firestore"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -12,18 +11,20 @@ import (
 	"log"
 )
 
-type repository struct {
-	client *firestore.Client
+type Repository struct{}
+
+func NewRepository() *Repository {
+	return &Repository{}
 }
 
-func (r *repository) SaveUser(ctx context.Context, user user.User) error {
+func (r *Repository) SaveUser(ctx context.Context, user user.User) error {
 	return nil
 }
-func (r *repository) LoadUser(ctx context.Context, userID user.ID) (*user.User, error) {
-	return nil, nil
+func (r *Repository) LoadUser(ctx context.Context, userID user.ID) (user.User, error) {
+	return user.User{}, nil
 }
 
-func (r *repository) LoadUsers(ctx context.Context) (*user.User, error) {
+func (r *Repository) LoadUsers(ctx context.Context) (user.Users, error) {
 	log.Println("LoadUsers")
 	store := ctxlib.GetDB(ctx)
 	log.Printf("store* %+v", store)
@@ -42,13 +43,13 @@ func (r *repository) LoadUsers(ctx context.Context) (*user.User, error) {
 	}
 	j, _ := json.Marshal(users)
 	log.Printf("j: %+v", j)
-	return nil, nil
+	return user.Users{}, nil
 }
 
-func (r *repository) SaveBook(ctx context.Context, book book.Book) error {
+func (r *Repository) SaveBook(ctx context.Context, book book.Book) error {
 	return nil
 }
 
-func (r *repository) LoadBook(ctx context.Context, bookID book.ID) (*book.Book, error) {
-	return nil, nil
+func (r *Repository) LoadBook(ctx context.Context, bookID book.ID) (book.Book, error) {
+	return book.Book{}, nil
 }

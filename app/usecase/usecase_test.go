@@ -241,16 +241,16 @@ func TestUsecase_BorrowBook(t *testing.T) {
 			fields: fields{
 				repositories: func(t *testing.T) repositories.Repository {
 					return &mock.RepositoryMock{
-						LoadBookFunc: func(ctx context.Context, bookID book.ID) (*book.Book, error) {
-							return &book.Book{
+						LoadBookFunc: func(ctx context.Context, bookID book.ID) (book.Book, error) {
+							return book.Book{
 								ID:      bookID1,
 								Title:   "book1",
 								ISBN13:  "978-1-56619-909-4",
 								OwnerID: userID1,
 							}, nil
 						},
-						LoadUserFunc: func(ctx context.Context, userID user.ID) (*user.User, error) {
-							return &user.User{
+						LoadUserFunc: func(ctx context.Context, userID user.ID) (user.User, error) {
+							return user.User{
 								ID:   userID2,
 								Name: "Taro",
 							}, nil

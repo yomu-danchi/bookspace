@@ -21,10 +21,10 @@ var _ repositories.Repository = &RepositoryMock{}
 //
 // 		// make and configure a mocked repositories.Repository
 // 		mockedRepository := &RepositoryMock{
-// 			LoadBookFunc: func(ctx context.Context, bookID book.ID) (*book.Book, error) {
+// 			LoadBookFunc: func(ctx context.Context, bookID book.ID) (book.Book, error) {
 // 				panic("mock out the LoadBook method")
 // 			},
-// 			LoadUserFunc: func(ctx context.Context, userID user.ID) (*user.User, error) {
+// 			LoadUserFunc: func(ctx context.Context, userID user.ID) (user.User, error) {
 // 				panic("mock out the LoadUser method")
 // 			},
 // 			LoadUsersFunc: func(ctx context.Context) (user.Users, error) {
@@ -44,10 +44,10 @@ var _ repositories.Repository = &RepositoryMock{}
 // 	}
 type RepositoryMock struct {
 	// LoadBookFunc mocks the LoadBook method.
-	LoadBookFunc func(ctx context.Context, bookID book.ID) (*book.Book, error)
+	LoadBookFunc func(ctx context.Context, bookID book.ID) (book.Book, error)
 
 	// LoadUserFunc mocks the LoadUser method.
-	LoadUserFunc func(ctx context.Context, userID user.ID) (*user.User, error)
+	LoadUserFunc func(ctx context.Context, userID user.ID) (user.User, error)
 
 	// LoadUsersFunc mocks the LoadUsers method.
 	LoadUsersFunc func(ctx context.Context) (user.Users, error)
@@ -102,7 +102,7 @@ type RepositoryMock struct {
 }
 
 // LoadBook calls LoadBookFunc.
-func (mock *RepositoryMock) LoadBook(ctx context.Context, bookID book.ID) (*book.Book, error) {
+func (mock *RepositoryMock) LoadBook(ctx context.Context, bookID book.ID) (book.Book, error) {
 	if mock.LoadBookFunc == nil {
 		panic("RepositoryMock.LoadBookFunc: method is nil but Repository.LoadBook was just called")
 	}
@@ -137,7 +137,7 @@ func (mock *RepositoryMock) LoadBookCalls() []struct {
 }
 
 // LoadUser calls LoadUserFunc.
-func (mock *RepositoryMock) LoadUser(ctx context.Context, userID user.ID) (*user.User, error) {
+func (mock *RepositoryMock) LoadUser(ctx context.Context, userID user.ID) (user.User, error) {
 	if mock.LoadUserFunc == nil {
 		panic("RepositoryMock.LoadUserFunc: method is nil but Repository.LoadUser was just called")
 	}

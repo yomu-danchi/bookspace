@@ -3,37 +3,39 @@ package rest
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/go-chi/chi/v5"
-	chiMiddleware "github.com/go-chi/chi/v5/middleware"
-	"github.com/yuonoda/bookspace/app/handlers/rest/middleware"
 	"github.com/yuonoda/bookspace/app/lib/ctxlib"
+	"github.com/yuonoda/bookspace/app/usecase"
 	"google.golang.org/api/iterator"
 	"log"
 	"net/http"
 )
 
-func Serve() {
-	r := chi.NewRouter()
-	r.Use(chiMiddleware.Logger)
-	r.Use(middleware.SetDB)
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		store := ctxlib.GetDB(ctx)
-		iter := store.Collection("users").Documents(ctx)
-		var users []map[string]interface{}
-		for {
-			doc, err := iter.Next()
-			if err == iterator.Done {
-				break
-			}
-			if err != nil {
-				log.Fatalf("Failed to iterate: %v", err)
-			}
-			fmt.Println(doc.Data())
-			users = append(users, doc.Data())
+type handler struct {
+	usecase usecase.Usecase
+}
+
+func NewHandler(u *usecase.Usecase) *handler {
+	return &handler{
+		*u,
+	}
+}
+
+func (h handler) GetUsers(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	store := ctxlib.GetDB(ctx)
+	iter := store.Collection("users").Documents(ctx)
+	var users []map[string]interface{}
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
 		}
-		j, _ := json.Marshal(users)
-		w.Write(j)
-	})
-	http.ListenAndServe(":8000", r)
+		if err != nil {
+			log.Fatalf("Failed to iterate: %v", err)
+		}
+		fmt.Println(doc.Data())
+		users = append(users, doc.Data())
+	}
+	j, _ := json.Marshal(users)
+	w.Write(j)
 }
