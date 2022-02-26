@@ -35,11 +35,11 @@ services:
       - 8812:8812
   firestore-test:
     build:
-      context: app/firestore
+      context: app/firestore-test
     environment:
       - PROJECT_ID=test-project
     volumes:
-      - ./app/firestore:/firestore
+      - ./app/firestore-test:/firestore
     command: /bin/bash /firestore/start.sh
     ports:
       - 8813:8813

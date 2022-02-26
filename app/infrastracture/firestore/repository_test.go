@@ -8,6 +8,7 @@ import (
 	"github.com/yuonoda/bookspace/app/errors"
 	"github.com/yuonoda/bookspace/app/errors/codes"
 	"github.com/yuonoda/bookspace/app/lib/ctxlib"
+	"google.golang.org/api/iterator"
 	"log"
 	"os"
 	"testing"
@@ -18,14 +19,49 @@ var testStore = getTestStore()
 func getTestStore() *firestore.Client {
 	ctx := context.Background()
 	os.Setenv("FIRESTORE_EMULATOR_HOST", "localhost:8813")
-	host := os.Getenv("FIRESTORE_EMULATOR_HOST")
-	log.Printf("host: %+v", host)
 	store, err := firestore.NewClient(ctx, "test-project")
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("store: %+v", store)
 	return store
+}
+
+func deleteCollection(ctx context.Context, client *firestore.Client,
+	ref *firestore.CollectionRef, batchSize int) error {
+
+	for {
+		// Get a batch of documents
+		iter := ref.Limit(batchSize).Documents(ctx)
+		numDeleted := 0
+
+		// Iterate through the documents, adding
+		// a delete operation for each one to a
+		// WriteBatch.
+		batch := client.Batch()
+		for {
+			doc, err := iter.Next()
+			if err == iterator.Done {
+				break
+			}
+			if err != nil {
+				return err
+			}
+
+			batch.Delete(doc.Ref)
+			numDeleted++
+		}
+
+		// If there are no documents to delete,
+		// the process is over.
+		if numDeleted == 0 {
+			return nil
+		}
+
+		_, err := batch.Commit(ctx)
+		if err != nil {
+			return err
+		}
+	}
 }
 
 func TestRepository_LoadUsers(t *testing.T) {
@@ -42,9 +78,11 @@ func TestRepository_LoadUsers(t *testing.T) {
 		{
 			name: "success",
 			fixtures: func(ctx context.Context) {
-				_, _, err := testStore.Collection("users").Add(ctx, map[string]interface{}{
+				collection := testStore.Collection("users")
+				deleteCollection(ctx, testStore, collection, 100)
+				_, _, err := collection.Add(ctx, map[string]interface{}{
 					"ID":   "V1StGXR8_Z5jdHi6B-myT",
-					"name": "sample2",
+					"name": "test_user1",
 				})
 				if err != nil {
 					log.Fatal(err)
@@ -67,7 +105,7 @@ func TestRepository_LoadUsers(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			r := Repository{}
 			ctx := tt.args.ctx
-			//tt.fixtures(ctx)
+			tt.fixtures(ctx)
 			got, err := r.LoadUsers(ctx)
 			if diff := cmp.Diff(errors.Code(err), tt.wantError); diff != "" {
 				t.Errorf(diff)
