@@ -1,10 +1,12 @@
 package rest
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	"github.com/yuonoda/bookspace/app/usecase"
+	"github.com/yuonoda/bookspace/app/usecase/dto"
 	"log"
 	"net/http"
 )
@@ -38,4 +40,25 @@ func (h handler) GetUser(w http.ResponseWriter, r *http.Request) {
 		render.Status(r, 404)
 	}
 	render.JSON(w, r, user)
+}
+
+func (h handler) CreateUser(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	var dtoUser dto.User
+	// TODO JSON が間違っていたときのバリデーション
+	err := json.NewDecoder(r.Body).Decode(&dtoUser)
+	if err != nil {
+		render.Status(r, 400)
+		return
+	}
+	user, err := h.usecase.CreateUser(ctx, dtoUser)
+	if err != nil {
+		log.Print(fmt.Errorf("failed to get users :%w", err))
+		render.Status(r, 404)
+	}
+	render.JSON(w, r, user)
+}
+
+func (h handler) RegisterBook(w http.ResponseWriter, r *http.Request) {
+	return
 }
