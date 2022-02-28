@@ -13,6 +13,11 @@ import (
 )
 
 func (r *Repository) SaveUser(ctx context.Context, user user.User) error {
+	store := ctxlib.GetDB(ctx)
+	_, err := store.Collection(UsersCollectionName).Doc(user.ID.String()).Set(ctx, user)
+	if err != nil {
+		return xerrors.Errorf("err: %w", err)
+	}
 	return nil
 }
 

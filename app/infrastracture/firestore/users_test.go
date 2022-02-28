@@ -119,3 +119,52 @@ func TestRepository_LoadUser(t *testing.T) {
 	}
 
 }
+func TestRepository_SaveUser(t *testing.T) {
+	type args struct {
+		ctx  context.Context
+		user user.User
+	}
+	tests := []struct {
+		name      string
+		args      args
+		want      user.User
+		wantError codes.Code
+	}{
+		{
+			name: "success",
+			args: args{
+				ctx: context.WithValue(context.Background(), ctxlib.DBContextKey, testStore),
+				user: user.User{
+					ID:   "user1_id",
+					Name: "user1_name",
+				},
+			},
+			want: user.User{
+				ID:   "user1_id",
+				Name: "user1_name",
+			},
+			wantError: codes.OK,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r := Repository{}
+			ctx := tt.args.ctx
+			err := r.SaveUser(ctx, tt.args.user)
+			if diff := cmp.Diff(errors.Code(err), tt.wantError); diff != "" {
+				t.Errorf(diff)
+				t.Log(err)
+			}
+			got, err := r.LoadUser(ctx, tt.args.user.ID)
+			if err != nil {
+				t.Error(err)
+				t.Log(err.Error())
+			}
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Error(diff)
+			}
+		})
+	}
+
+}
