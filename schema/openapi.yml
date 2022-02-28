@@ -17,6 +17,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Users'
+    post:
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserWithoutID'
+      responses:
+        '201':
+          description: Created
   /users/{userID}:
     get:
       operationId: getUser
@@ -33,6 +44,18 @@ paths:
           schema:
             type: string
           required: true
+  /books:
+    post:
+      operationId: registerBook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookWithoutID'
+      responses:
+        '201':
+          description: Created
 components:
   schemas:
     Users:
@@ -48,6 +71,13 @@ components:
           type: string
       required:
         - ID
+        - name
+    UserWithoutID:
+      type: object
+      properties:
+        name:
+          type: string
+      required:
         - name
     UserWithBooks:
       type: object
@@ -74,6 +104,19 @@ components:
           type: string
       required:
         - ID
+        - ISBN13
+        - title
+        - ownerID
+    BookWithoutID:
+      type: object
+      properties:
+        ISBN13:
+          type: string
+        title:
+          type: string
+        ownerID:
+          type: string
+      required:
         - ISBN13
         - title
         - ownerID

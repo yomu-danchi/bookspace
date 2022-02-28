@@ -12,14 +12,36 @@ import (
 )
 
 type ServerInterface interface {
+	//  (POST /books)
+	RegisterBook(w http.ResponseWriter, r *http.Request)
 	//  (GET /users)
 	GetUsers(w http.ResponseWriter, r *http.Request)
+	//  (POST /users)
+	CreateUser(w http.ResponseWriter, r *http.Request)
 	//  (GET /users/{userID})
 	GetUser(w http.ResponseWriter, r *http.Request)
 }
 
+// RegisterBook operation middleware
+func RegisterBookCtx(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
 // GetUsers operation middleware
 func GetUsersCtx(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+// CreateUser operation middleware
+func CreateUserCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
@@ -57,8 +79,16 @@ func Handler(si ServerInterface) http.Handler {
 // HandlerFromMux creates http.Handler with routing matching OpenAPI spec based on the provided mux.
 func HandlerFromMux(si ServerInterface, r chi.Router) http.Handler {
 	r.Group(func(r chi.Router) {
+		r.Use(RegisterBookCtx)
+		r.Post("/books", si.RegisterBook)
+	})
+	r.Group(func(r chi.Router) {
 		r.Use(GetUsersCtx)
 		r.Get("/users", si.GetUsers)
+	})
+	r.Group(func(r chi.Router) {
+		r.Use(CreateUserCtx)
+		r.Post("/users", si.CreateUser)
 	})
 	r.Group(func(r chi.Router) {
 		r.Use(GetUserCtx)
