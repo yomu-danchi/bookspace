@@ -16,7 +16,16 @@ func (r *Repository) SaveBook(ctx context.Context, book book.Book) error {
 }
 
 func (r *Repository) LoadBook(ctx context.Context, bookID book.ID) (book.Book, error) {
-	return book.Book{}, nil
+	store := ctxlib.GetDB(ctx)
+	dsnap, err := store.Collection(BooksCollectionName).Doc(bookID.String()).Get(ctx)
+	if err != nil {
+		return book.Book{}, err
+	}
+	loadedBook, err := r.parseToBook(dsnap.Data())
+	if err != nil {
+		return book.Book{}, xerrors.Errorf(":%W", err)
+	}
+	return loadedBook, nil
 }
 
 func (r *Repository) LoadBooksOwnedBy(ctx context.Context, ownerID user.ID) (book.Books, error) {
@@ -33,8 +42,6 @@ func (r *Repository) LoadBooksOwnedBy(ctx context.Context, ownerID user.ID) (boo
 		}
 		fetched = append(fetched, doc.Data())
 	}
-
-	log.Printf("fetched: %+v", fetched)
 	books, err := r.parseToBooks(fetched)
 	if err != nil {
 		return nil, xerrors.Errorf(":%w", err)
@@ -43,14 +50,27 @@ func (r *Repository) LoadBooksOwnedBy(ctx context.Context, ownerID user.ID) (boo
 }
 
 // ジェネリクスを使ってusersと共通化したい
+func (r *Repository) parseToBook(fetched map[string]interface{}) (book.Book, error) {
+	bytes, err := json.Marshal(fetched)
+	if err != nil {
+		return book.Book{}, xerrors.Errorf("failed to parse to json : %w", err)
+	}
+	var b book.Book
+	if err := json.Unmarshal(bytes, &b); err != nil {
+		return book.Book{}, xerrors.Errorf("failed to parse from json : %w", err)
+	}
+	return b, err
+}
+
+// ジェネリクスを使ってusersと共通化したい
 func (r *Repository) parseToBooks(fetched []map[string]interface{}) (book.Books, error) {
 	bytes, err := json.Marshal(fetched)
 	if err != nil {
 		return nil, xerrors.Errorf("failed to parse to json : %w", err)
 	}
-	var users book.Books
-	if err := json.Unmarshal(bytes, &users); err != nil {
+	var books book.Books
+	if err := json.Unmarshal(bytes, &books); err != nil {
 		return nil, xerrors.Errorf("failed to parse from json : %w", err)
 	}
-	return users, err
+	return books, err
 }
