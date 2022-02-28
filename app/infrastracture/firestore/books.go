@@ -12,6 +12,11 @@ import (
 )
 
 func (r *Repository) SaveBook(ctx context.Context, book book.Book) error {
+	store := ctxlib.GetDB(ctx)
+	_, err := store.Collection(BooksCollectionName).Doc(book.ID.String()).Set(ctx, book)
+	if err != nil {
+		return xerrors.Errorf("err: %w", err)
+	}
 	return nil
 }
 

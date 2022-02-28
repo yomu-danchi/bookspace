@@ -171,53 +171,64 @@ func TestRepository_LoadBook(t *testing.T) {
 	}
 
 }
+func TestRepository_SaveBook(t *testing.T) {
+	type args struct {
+		ctx  context.Context
+		book book.Book
+	}
+	tests := []struct {
+		name      string
+		args      args
+		fixture   func(ctx context.Context)
+		want      book.Book
+		wantError codes.Code
+	}{
+		{
+			name: "success",
+			fixture: func(ctx context.Context) {
+				collection := testStore.Collection(BooksCollectionName)
+				deleteCollection(ctx, testStore, collection, 100)
+			},
+			args: args{
+				ctx: context.WithValue(context.Background(), ctxlib.DBContextKey, testStore),
+				book: book.Book{
+					ID:         "book1_id",
+					OwnerID:    "user1_ID",
+					BorrowerID: "user2_ID",
+					ISBN13:     "ISBN13",
+					Title:      "book1_title",
+				},
+			},
+			want: book.Book{
+				ID:         "book1_id",
+				OwnerID:    "user1_ID",
+				BorrowerID: "user2_ID",
+				ISBN13:     "ISBN13",
+				Title:      "book1_title",
+			},
+			wantError: codes.OK,
+		},
+	}
 
-//func TestRepository_SaveBook(t *testing.T) {
-//    type args struct {
-//        ctx  context.Context
-//        book user.Book
-//    }
-//    tests := []struct {
-//        name      string
-//        args      args
-//        want      user.Book
-//        wantError codes.Code
-//    }{
-//        {
-//            name: "success",
-//            args: args{
-//                ctx: context.WithValue(context.Background(), ctxlib.DBContextKey, testStore),
-//                user: user.User{
-//                    ID:   "user1_id",
-//                    Name: "user1_name",
-//                },
-//            },
-//            want: user.User{
-//                ID:   "user1_id",
-//                Name: "user1_name",
-//            },
-//            wantError: codes.OK,
-//        },
-//    }
-//
-//    for _, tt := range tests {
-//        t.Run(tt.name, func(t *testing.T) {
-//            r := Repository{}
-//            ctx := tt.args.ctx
-//            err := r.SaveUser(ctx, tt.args.user)
-//            if diff := cmp.Diff(errors.Code(err), tt.wantError); diff != "" {
-//                t.Errorf(diff)
-//                t.Log(err)
-//            }
-//            got, err := r.LoadUser(ctx, tt.args.user.ID)
-//            if err != nil {
-//                t.Error(err)
-//                t.Log(err.Error())
-//            }
-//            if diff := cmp.Diff(got, tt.want); diff != "" {
-//                t.Error(diff)
-//            }
-//        })
-//    }
-//
-//}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r := Repository{}
+			ctx := tt.args.ctx
+			tt.fixture(ctx)
+			err := r.SaveBook(ctx, tt.args.book)
+			if diff := cmp.Diff(errors.Code(err), tt.wantError); diff != "" {
+				t.Errorf(diff)
+				t.Log(err)
+			}
+			got, err := r.LoadBook(ctx, tt.args.book.ID)
+			if err != nil {
+				t.Error(err)
+				t.Log(err.Error())
+			}
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Error(diff)
+			}
+		})
+	}
+
+}
