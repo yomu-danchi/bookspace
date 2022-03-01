@@ -1,15 +1,16 @@
 import React from 'react';
+import {Route, Routes} from "react-router-dom";
+import Users from './pages/users';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-      </header>
-    </div>
-  );
-}
+const App = (): JSX.Element => <Routing />
+
+const Routing: React.VFC<unknown> = () => (
+  <>
+      <Routes>
+        <Route path="/" element={<Users />} />
+      </Routes>
+  </>
+)
+
 
 export default App;
