@@ -1,16 +1,6 @@
-import React from 'react';
-import {Route, Routes} from "react-router-dom";
-import Users from './pages/users';
+import React from 'react'
+import Routing from "./routing"
 
 const App = (): JSX.Element => <Routing />
-
-const Routing: React.VFC<unknown> = () => (
-  <>
-      <Routes>
-        <Route path="/" element={<Users />} />
-      </Routes>
-  </>
-)
-
 
 export default App;
