@@ -56,6 +56,39 @@ paths:
       responses:
         '201':
           description: Created
+  /books/{bookID}/borrower/{userID}:
+    post:
+      operationId: borrowBook
+      responses:
+        '201':
+          description: Created
+      parameters:
+        - in: path
+          name: bookID
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: userID
+          schema:
+            type: string
+          required: true
+    delete:
+      operationId: returnBook
+      responses:
+        '204':
+          description: No Content
+      parameters:
+        - in: path
+          name: bookID
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: userID
+          schema:
+            type: string
+          required: true
 components:
   schemas:
     Users:
@@ -124,4 +157,3 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/Book'
-

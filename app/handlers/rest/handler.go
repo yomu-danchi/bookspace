@@ -76,3 +76,6 @@ func (h handler) RegisterBook(w http.ResponseWriter, r *http.Request) {
 	}
 	render.JSON(w, r, user)
 }
+
+func (h handler) ReturnBook(w http.ResponseWriter, r *http.Request) {}
+func (h handler) BorrowBook(w http.ResponseWriter, r *http.Request) {}

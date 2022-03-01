@@ -14,6 +14,10 @@ import (
 type ServerInterface interface {
 	//  (POST /books)
 	RegisterBook(w http.ResponseWriter, r *http.Request)
+	//  (DELETE /books/{bookID}/borrower/{userID})
+	ReturnBook(w http.ResponseWriter, r *http.Request)
+	//  (POST /books/{bookID}/borrower/{userID})
+	BorrowBook(w http.ResponseWriter, r *http.Request)
 	//  (GET /users)
 	GetUsers(w http.ResponseWriter, r *http.Request)
 	//  (POST /users)
@@ -26,6 +30,70 @@ type ServerInterface interface {
 func RegisterBookCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
+
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+// ReturnBook operation middleware
+func ReturnBookCtx(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+
+		var err error
+
+		// ------------- Path parameter "bookID" -------------
+		var bookID string
+
+		err = runtime.BindStyledParameter("simple", false, "bookID", chi.URLParam(r, "bookID"), &bookID)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Invalid format for parameter bookID: %s", err), http.StatusBadRequest)
+			return
+		}
+
+		ctx = context.WithValue(ctx, "bookID", bookID)
+		// ------------- Path parameter "userID" -------------
+		var userID string
+
+		err = runtime.BindStyledParameter("simple", false, "userID", chi.URLParam(r, "userID"), &userID)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Invalid format for parameter userID: %s", err), http.StatusBadRequest)
+			return
+		}
+
+		ctx = context.WithValue(ctx, "userID", userID)
+
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+// BorrowBook operation middleware
+func BorrowBookCtx(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+
+		var err error
+
+		// ------------- Path parameter "bookID" -------------
+		var bookID string
+
+		err = runtime.BindStyledParameter("simple", false, "bookID", chi.URLParam(r, "bookID"), &bookID)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Invalid format for parameter bookID: %s", err), http.StatusBadRequest)
+			return
+		}
+
+		ctx = context.WithValue(ctx, "bookID", bookID)
+		// ------------- Path parameter "userID" -------------
+		var userID string
+
+		err = runtime.BindStyledParameter("simple", false, "userID", chi.URLParam(r, "userID"), &userID)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Invalid format for parameter userID: %s", err), http.StatusBadRequest)
+			return
+		}
+
+		ctx = context.WithValue(ctx, "userID", userID)
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
@@ -81,6 +149,14 @@ func HandlerFromMux(si ServerInterface, r chi.Router) http.Handler {
 	r.Group(func(r chi.Router) {
 		r.Use(RegisterBookCtx)
 		r.Post("/books", si.RegisterBook)
+	})
+	r.Group(func(r chi.Router) {
+		r.Use(ReturnBookCtx)
+		r.Delete("/books/{bookID}/borrower/{userID}", si.ReturnBook)
+	})
+	r.Group(func(r chi.Router) {
+		r.Use(BorrowBookCtx)
+		r.Post("/books/{bookID}/borrower/{userID}", si.BorrowBook)
 	})
 	r.Group(func(r chi.Router) {
 		r.Use(GetUsersCtx)
